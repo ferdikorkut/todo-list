@@ -1,0 +1,294 @@
+/* ===========================================
+   GENEL SIFIRLAMA (RESET)
+   =========================================== */
+* {
+    /* box-sizing: border-box -> padding ve border, elemanın genişliğine
+       EKLENMEZ, genişliğin İÇİNDEN sayılır. Boyut hesaplamalarını kolaylaştırır */
+    box-sizing: border-box;
+}
+
+/* ===========================================
+   SAYFA ARKA PLANI (body)
+   =========================================== */
+body {
+    margin: 0;
+    min-height: 100vh; /* vh = viewport height -> en az ekran yüksekliği kadar */
+    font-family: Arial, Helvetica, sans-serif;
+
+    /* display: flex + align-items/justify-content: center
+       -> içindeki .card kutusunu hem yatayda hem dikeyde TAM ORTAYA alır */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+
+    /* background-color: Gradientlerin kaplamadığı yerlerde görünecek ana renk */
+    background-color: #f3f0ff;
+
+    /* background-image: İki ayrı "radial-gradient" (dairesel geçiş) üst üste bindiriliyor.
+       1. gradient: sol üst köşeden başlayıp ortaya doğru açılan yumuşak nane yeşili
+       2. gradient: sağ alt köşeden başlayıp ortaya doğru açılan yumuşak pembe
+       "transparent" -> geçişin sonunda renk tamamen şeffaflaşır, altındaki background-color görünür */
+    background-image:
+        radial-gradient(circle at top left, #a8edea 0%, transparent 55%),
+        radial-gradient(circle at bottom right, #fbc2eb 0%, transparent 55%);
+}
+
+/* ===========================================
+   ANA KART (.card)
+   =========================================== */
+.card {
+    width: 100%;
+    max-width: 460px;
+    background-color: #ffffff;
+    border-radius: 16px;
+
+    /* overflow: hidden -> içindeki .card-header'ın köşeleri kartın dışına taşmasın,
+       kartın yuvarlak köşe hizasında kesilsin */
+    overflow: hidden;
+
+    /* box-shadow: Karta hafif bir gölge vererek arka plandan ayrışmasını sağlar */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* ===========================================
+   ÜST BAŞLIK BÖLÜMÜ (.card-header)
+   =========================================== */
+.card-header {
+    /* Diğer bölümlerden farklı, mor tonlarında bir arka plan rengi */
+    background-color: #6c63ff;
+    color: #ffffff;
+    padding: 24px;
+    text-align: center;
+}
+
+.card-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+}
+
+.card-header p {
+    margin: 0;
+    font-size: 13px;
+    /* opacity: 0.85 -> Yazıyı %85 görünür yapar, biraz soluk görünmesini sağlar */
+    opacity: 0.85;
+    line-height: 1.4;
+}
+
+/* ===========================================
+   GÖREV EKLEME ALANI (.add-task)
+   =========================================== */
+.add-task {
+    display: flex;
+    /* flex-wrap: wrap -> alan dar olduğunda elemanlar alt satıra geçebilir */
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 20px 24px 12px 24px;
+}
+
+/* Görev yazılan input -> kalan tüm boş alanı kaplasın */
+#todo-input {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Öncelik seçim kutusu (select) */
+#priority-select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #ffffff;
+}
+
+/* Ekle butonu */
+#add-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    background-color: #6c63ff;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ===========================================
+   FİLTRE SATIRI (.filters)
+   =========================================== */
+.filters {
+    display: flex;
+    /* justify-content: space-between -> sol grup ve sağ buton arasındaki
+       boşluğu maksimuma çıkarır, biri sola biri sağa yaslanır */
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 24px 16px 24px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+/* Filtre butonları (Tümü / Aktif / Tamamlanan) */
+.filter-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 20px; /* yüksek değer -> hap/oval şekil verir */
+    background-color: #f0eefc;
+    color: #6c63ff;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* .active class'ı olan filtre butonu -> şu an seçili olan filtreyi vurgular */
+.filter-btn.active {
+    background-color: #6c63ff;
+    color: #ffffff;
+}
+
+/* "Tamamlananları Sil" butonu -> dikkat çekmesi için kırmızı tonlarda, sade */
+#clear-completed-btn {
+    border: none;
+    background: none;
+    color: #e74c3c;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* ===========================================
+   İSTATİSTİK KUTULARI (.stats)
+   =========================================== */
+.stats {
+    display: flex;
+    gap: 8px;
+    padding: 0 24px 16px 24px;
+}
+
+/* Her bir istatistik kutusu (Toplam / Aktif / Tamamlanan) */
+.stat-box {
+    /* flex: 1 -> 3 kutu da eşit genişlikte olur */
+    flex: 1;
+    background-color: #f7f7fb;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+
+/* Sayının kendisi (örn: "0") */
+.stat-number {
+    /* display: block -> span'ı kendi satırına alır, altına stat-label gelsin diye */
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333333;
+}
+
+/* Sayının altındaki açıklama yazısı (örn: "Toplam") */
+.stat-label {
+    font-size: 11px;
+    color: #999999;
+    text-transform: uppercase; /* yazıyı büyük harfe çevirir */
+}
+
+/* ===========================================
+   GÖREV LİSTESİ (.task-list)
+   =========================================== */
+.task-list {
+    list-style: none; /* madde işaretlerini kaldırır */
+    margin: 0;
+    padding: 0 24px 24px 24px;
+}
+
+/* Her bir görev satırı (.task-item) */
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background-color: #fafafa;
+
+    /* border-left: Soldaki renkli şerit -> önceliği renkle gösterecek */
+    border-left: 4px solid transparent;
+}
+
+/* Öncelik renkleri -> soldaki şeridin rengini belirler */
+.task-item.priority-high {
+    border-left-color: #e74c3c; /* kırmızı */
+}
+.task-item.priority-normal {
+    border-left-color: #f1c40f; /* sarı/turuncu */
+}
+.task-item.priority-low {
+    border-left-color: #2ecc71; /* yeşil */
+}
+
+/* Tamamlandı işaretleme butonu (yuvarlak) */
+.check-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%; /* tam yuvarlak yapar */
+    border: 2px solid #cccccc;
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0; /* metin uzun olsa bile bu butonun küçülmesini engeller */
+
+    /* İçindeki tik işaretini ortalamak için */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #ffffff;
+    padding: 0;
+}
+
+/* "checked" class'ı eklendiğinde -> dolu yeşil daire + beyaz tik görünümü */
+.check-btn.checked {
+    background-color: #2ecc71;
+    border-color: #2ecc71;
+}
+
+/* Görev metni -> kalan tüm alanı kaplasın */
+.task-text {
+    flex: 1;
+    font-size: 14px;
+    color: #333333;
+}
+
+/* "completed" class'ı olan satırlardaki yazı -> üstü çizili ve soluk gri */
+.task-item.completed .task-text {
+    text-decoration: line-through;
+    color: #aaaaaa;
+}
+
+/* Sağdaki butonların (öncelik okları, düzenle, sil) bulunduğu grup */
+.task-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Öncelik okları, düzenle ve sil butonlarının ortak stili */
+.priority-btn,
+.edit-btn,
+.delete-btn {
+    border: none;
+    background-color: #eeeeee;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* Sil butonuna ekstra olarak kırmızımsı bir vurgu */
+.delete-btn {
+    color: #e74c3c;
+}
