@@ -26,32 +26,16 @@
              solda görev yazma kutusu (2 satır yüksekliğinde),
              sağda üst üste 2 satır: öncelik butonları + Ekle butonu -->
         <section class="add-task">
-            <!-- Görev metninin yazılacağı kutu -> artık textarea, 2 satır yazılabiliyor.
-                 "rows" başlangıç yüksekliğini belirtir; gerçek yükseklik flex ile
-                 sağdaki 2 satırlık sütunla aynı oluyor. "resize: none" ile köşeden
-                 sürükleyip boyut değiştirme kapatıldı -->
+            <!-- Görev metninin yazılacağı kutu -> 2 satır yazılabiliyor.
+                 "resize: none" ile köşeden sürükleyip boyut değiştirme kapatıldı -->
             <textarea id="todo-input" rows="2" placeholder="Yeni görev ekle..."></textarea>
 
-            <!-- add-task-right: sağ sütun, üst üste 2 satır içeriyor -->
-            <div class="add-task-right">
-                <!-- priority-options: öncelik seçimi artık radio button ile yapılıyor
-                     ama radio'lar görünmez, yanlarındaki label'lar buton gibi stillendi.
-                     "checked" olan radio'nun label'ı CSS ile renkli gösteriliyor -->
-                <div class="priority-options">
-                    <!-- Etiketlerin içine yazı yerine, görev satırlarındaki öncelik
-                         oklarıyla aynı semboller kondu: ▲ yüksek, ● normal, ▼ düşük -->
-                    <input type="radio" name="priority" id="priority-high" value="high">
-                    <label for="priority-high" class="priority-option priority-option-high">▲</label>
-
-                    <input type="radio" name="priority" id="priority-normal" value="normal" checked>
-                    <label for="priority-normal" class="priority-option priority-option-normal">●</label>
-
-                    <input type="radio" name="priority" id="priority-low" value="low">
-                    <label for="priority-low" class="priority-option priority-option-low">▼</label>
-                </div>
-
-                <!-- Görevi listeye eklemek için tıklanacak buton -->
-                <button id="add-btn">Ekle</button>
+            <!-- add-task-buttons: önceliğe göre renklendirilmiş 3 ayrı "Ekle" butonu.
+                 Hangisine tıklanırsa görev o öncelikle eklenir -->
+            <div class="add-task-buttons">
+                <button class="add-btn add-btn-high" data-priority="high">+</button>
+                <button class="add-btn add-btn-normal" data-priority="normal">+</button>
+                <button class="add-btn add-btn-low" data-priority="low">+</button>
             </div>
         </section>
 

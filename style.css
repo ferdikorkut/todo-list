@@ -81,17 +81,15 @@ body {
    =========================================== */
 .add-task {
     display: flex;
-    /* flex-wrap: wrap -> alan dar olduğunda elemanlar alt satıra geçebilir */
-    flex-wrap: wrap;
+    /* flex-direction: column -> textarea üstte, Ekle butonları altında alt alta dursun */
+    flex-direction: column;
     gap: 8px;
     padding: 35px 24px 30px 24px;
 }
 
-/* Görev yazılan input -> sol sütun. Yükseklik vermiyoruz, "align-items: stretch"
-   (flex'in varsayılanı) sayesinde sağdaki 2 satırlık sütunla aynı boya geliyor */
+/* Görev yazılan input. "align-items: stretch" (flex'in varsayılanı) sayesinde
+   .add-task'ın tüm genişliğini kaplıyor */
 #todo-input {
-    flex: 1;
-    min-width: 120px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -102,79 +100,37 @@ body {
     resize: none;
 }
 
-/* add-task-right: sağ sütun. "flex: 0 0 120px" -> sabit genişlik (120px),
-   büyümez/küçülmez. Böylece öncelik butonları minimum boyutta kalır,
-   Ekle butonu da daralır; kalan tüm alanı soldaki input kaplar */
-.add-task-right {
-    flex: 0 0 120px;
+/* add-task-buttons: 3 "Ekle" butonunun yan yana dizildiği grup */
+.add-task-buttons {
     display: flex;
-    flex-direction: column;
     gap: 8px;
 }
 
-/* priority-options: 1. satır -> öncelik butonlarının yan yana dizildiği grup */
-.priority-options {
-    display: flex;
-    gap: 6px;
-}
-
-/* Gerçek radio input'ları gizle -> ekranda sadece yanlarındaki label'lar görünecek */
-.priority-options input[type="radio"] {
-    display: none;
-}
-
-/* Radio'ların yanındaki label'lar -> "buton" gibi görünüyor */
-.priority-option {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3px 4px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 13px;
-    color: #666666;
-    background-color: #ffffff;
-    cursor: pointer;
-}
-
-/* "●" sembolü diğer oklara göre küçük göründüğü için font-size'ını büyüttük */
-.priority-option-normal {
-    font-size: 18px;
-}
-
-/* "checked" olan radio'nun yanındaki label -> görev satırlarındaki öncelik
-   renkleriyle AYNI renge boyanır (kırmızı/sarı/yeşil). "+" -> bir sonraki
-   kardeş elemanı seçer (radio'dan hemen sonraki label) */
-#priority-high:checked + .priority-option-high {
-    background-color: #e74c3c;
-    border-color: #e74c3c;
-    color: #ffffff;
-}
-
-#priority-normal:checked + .priority-option-normal {
-    background-color: #f39c12;
-    border-color: #f39c12;
-    color: #ffffff;
-}
-
-#priority-low:checked + .priority-option-low {
-    background-color: #f7dc6f;
-    border-color: #f7dc6f;
-    /* sarı arka plan üzerinde beyaz yazı okunaksız olduğu için koyu renk kullanıldı */
-    color: #5c4500;
-}
-
-/* Ekle butonu -> sağ sütunun 2. satırı, tüm genişliği kaplar */
-#add-btn {
+/* Üç butonun ortak stili -> "flex: 1" ile eşit genişlikte yan yana dururlar.
+   Renkli dolgu yerine sadece kenarlık (border) kullanılıyor */
+.add-btn {
     flex: 1;
     padding: 8px;
-    border: none;
+    border: 2px solid;
     border-radius: 6px;
-    background-color: rgba(77, 103, 190, 0.5);
-    color: #ffffff;
-    font-size: 14px;
+    background-color: #ffffff;
+    font-size: 30px;
     cursor: pointer;
+}
+
+/* Önceliğe göre renkler -> görev satırlarındaki öncelik renkleriyle aynı.
+   "+" sembolünün rengi (color) kenarlık rengiyle (border-color) aynı */
+.add-btn-high {
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+.add-btn-normal {
+    border-color: #f39c12;
+    color: #f39c12;
+}
+.add-btn-low {
+    border-color: #f7dc6f;
+    color: #f7dc6f;
 }
 
 /* ===========================================
@@ -303,8 +259,9 @@ body {
     border-left-color: #2ecc71; /* yeşil */
 }
 
-/* Seçili filtreye uymayan görevler -> tamamen gizlenir */
-.task-item.hidden {
+/* "hidden" class'ı eklenen herhangi bir eleman tamamen gizlenir
+   (filtreye uymayan görev satırları, gereksiz öncelik okları gibi) */
+.hidden {
     display: none;
 }
 
@@ -366,25 +323,46 @@ body {
     gap: 4px;
 }
 
-/* Öncelik okları, düzenle ve sil butonlarının ortak stili */
-.priority-btn,
+/* Düzenle ve sil butonlarının ortak stili */
 .edit-btn,
 .delete-btn {
     border: none;
     background-color: #eeeeee;
     border-radius: 8px;
-    padding: 8px 8px;
+    padding: 6px;
     font-size: 12px;
     cursor: pointer;
+}
+
+/* ✎ ikonu küçük göründüğü için font-size'ını büyüttük,
+   üst/alt padding'i de sadece bu buton için ayrıca ayarlanabilir yaptık */
+.edit-btn {
+    font-size: 18px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+/* "Kaydet" durumunda buton 💾 emoji gösteriyor -> ✎'den daha büyük göründüğü
+   için font-size ve padding'i burada ayrıca küçültebilirsin */
+.edit-btn.saving {
+    font-size: 12px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+/* Öncelik artır/azalt okları (▲ / ▼) */
+.priority-up-btn,
+.priority-down-btn {
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: #999999;
+    cursor: pointer;
+    padding: 5px 10px 5px 0px;
+    flex-shrink: 0;
 }
 
 /* Sil butonuna ekstra olarak kırmızımsı bir vurgu */
 .delete-btn {
     color: #e74c3c;
-}
-
-/* edit-btn yazısı "Düzenle" <-> "Kaydet" arasında değişince buton boyu
-   değişmesin diye sabit genişlik veriyoruz */
-.edit-btn {
-    width: 64px;
 }

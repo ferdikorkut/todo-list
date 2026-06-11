@@ -8,7 +8,7 @@
 // --- Sayfadaki elemanlara referanslar ---
 // getElementById/querySelector ile HTML'deki elemanları JS değişkenlerine bağlıyoruz
 const todoInput = document.getElementById('todo-input');
-const addBtn = document.getElementById('add-btn');
+const addBtns = document.querySelectorAll('.add-btn');
 const taskList = document.querySelector('.task-list');
 
 const totalCountEl = document.getElementById('total-count');
@@ -28,8 +28,8 @@ const PRIORITY_ORDER = {
     low: 2
 };
 
-// PRIORITY_ORDER'ın tersi: sıra numarasından öncelik adını bulmak için
-// (örn: PRIORITY_LEVELS[0] = 'high')
+// Önceliklerin sırayla listesi -> ok butonlarına basınca bir sonraki/önceki
+// önceliği bulmak için kullanılır (PRIORITY_ORDER'ın index'li hali)
 const PRIORITY_LEVELS = ['high', 'normal', 'low'];
 
 // --- Yeni bir görev satırı (li) oluşturan fonksiyon ---
@@ -56,6 +56,9 @@ function createTaskElement(text, priority) {
         // Tamamlanma durumu değiştiği için görevi listede doğru gruba taşı
         insertTaskInOrder(li);
 
+        // Tamamlandıysa okları gizle, geri alındıysa tekrar göster
+        updatePriorityArrows();
+
         // Filtre uygulanmışsa, görev tamamlanma durumuna göre görünür/gizli olsun
         applyFilter();
 
@@ -71,10 +74,10 @@ function createTaskElement(text, priority) {
     const actions = document.createElement('div');
     actions.className = 'task-actions';
     actions.innerHTML = `
-        <button class="priority-btn priority-up-btn">▲</button>
-        <button class="priority-btn priority-down-btn">▼</button>
-        <button class="edit-btn">Düzenle</button>
-        <button class="delete-btn">Sil</button>
+        <button class="priority-up-btn">▲</button>
+        <button class="priority-down-btn">▼</button>
+        <button class="edit-btn">✎</button>
+        <button class="delete-btn">🗑️</button>
     `;
 
     // innerHTML ile eklenen butonlara erişmek için querySelector kullanıyoruz
@@ -83,6 +86,22 @@ function createTaskElement(text, priority) {
     const editBtn = actions.querySelector('.edit-btn');
     const deleteBtn = actions.querySelector('.delete-btn');
 
+    // Görevin önceliğine göre gereksiz oku gizler:
+    // "high" -> zaten en üstte, ▲ gizlenir. "low" -> zaten en altta, ▼ gizlenir
+    function updatePriorityArrows() {
+        // Görev tamamlandıysa önceliğin bir önemi kalmaz, okların ikisi de gizlenir
+        if (li.classList.contains('completed')) {
+            priorityUpBtn.classList.add('hidden');
+            priorityDownBtn.classList.add('hidden');
+            return;
+        }
+
+        const index = PRIORITY_LEVELS.indexOf(li.dataset.priority);
+
+        priorityUpBtn.classList.toggle('hidden', index === 0);
+        priorityDownBtn.classList.toggle('hidden', index === PRIORITY_LEVELS.length - 1);
+    }
+
     // Görevin önceliğini değiştirip listeyi yeniden sıralayan yardımcı fonksiyon
     function changeTaskPriority(newPriority) {
         // Eski öncelik class'ını kaldır, yenisini ekle
@@ -90,32 +109,25 @@ function createTaskElement(text, priority) {
         li.classList.add(`priority-${newPriority}`);
         li.dataset.priority = newPriority;
 
+        updatePriorityArrows();
+
         // Listeyi yeni önceliğe göre doğru sıraya koy
         insertTaskInOrder(li);
     }
 
-    // "▲" butonuna tıklanınca öncelik bir seviye artar (düşük -> normal -> yüksek)
+    // Başlangıçtaki önceliğe göre doğru okları göster/gizle
+    updatePriorityArrows();
+
+    // ▲ -> önceliği bir seviye artırır (low -> normal -> high)
     priorityUpBtn.addEventListener('click', () => {
-        const currentIndex = PRIORITY_ORDER[li.dataset.priority];
-
-        // Zaten en yüksek öncelikteyse bir şey yapma
-        if (currentIndex === 0) {
-            return;
-        }
-
-        changeTaskPriority(PRIORITY_LEVELS[currentIndex - 1]);
+        const index = PRIORITY_LEVELS.indexOf(li.dataset.priority);
+        changeTaskPriority(PRIORITY_LEVELS[index - 1]);
     });
 
-    // "▼" butonuna tıklanınca öncelik bir seviye azalır (yüksek -> normal -> düşük)
+    // ▼ -> önceliği bir seviye azaltır (high -> normal -> low)
     priorityDownBtn.addEventListener('click', () => {
-        const currentIndex = PRIORITY_ORDER[li.dataset.priority];
-
-        // Zaten en düşük öncelikteyse bir şey yapma
-        if (currentIndex === PRIORITY_LEVELS.length - 1) {
-            return;
-        }
-
-        changeTaskPriority(PRIORITY_LEVELS[currentIndex + 1]);
+        const index = PRIORITY_LEVELS.indexOf(li.dataset.priority);
+        changeTaskPriority(PRIORITY_LEVELS[index + 1]);
     });
 
     // "Sil" butonuna tıklanınca görev satırını listeden kaldır
@@ -124,10 +136,10 @@ function createTaskElement(text, priority) {
         updateStats();
     });
 
-    // "Düzenle" butonuna tıklanınca satır içi düzenleme moduna geç/çık
+    // "✎" butonuna tıklanınca satır içi düzenleme moduna geç/çık
     editBtn.addEventListener('click', () => {
         if (!li.classList.contains('editing')) {
-            // --- Düzenleme moduna geç ---
+            // --- ✎me moduna geç ---
             // task-text yerine, içinde mevcut metin olan bir input koy
             const editInput = document.createElement('input');
             editInput.type = 'text';
@@ -138,7 +150,8 @@ function createTaskElement(text, priority) {
             taskText.replaceWith(editInput);
             editInput.focus();
 
-            editBtn.textContent = 'Kaydet';
+            editBtn.textContent = '💾';
+            editBtn.classList.add('saving');
             li.classList.add('editing');
         } else {
             // --- Kaydet: input'taki yeni metni taskText'e geri yaz ---
@@ -153,7 +166,8 @@ function createTaskElement(text, priority) {
             // editInput'u kaldırıp yerine taskText'i geri koy
             editInput.replaceWith(taskText);
 
-            editBtn.textContent = 'Düzenle';
+            editBtn.textContent = '✎';
+            editBtn.classList.remove('saving');
             li.classList.remove('editing');
         }
     });
@@ -231,7 +245,8 @@ function updateStats() {
 }
 
 // --- Yeni görev ekleme işlemi ---
-function addTask() {
+// priority: tıklanan "Ekle" butonunun data-priority değeri (high/normal/low)
+function addTask(priority) {
     // Başındaki/sonundaki boşlukları temizle
     const text = todoInput.value.trim();
 
@@ -240,10 +255,7 @@ function addTask() {
         return;
     }
 
-    // İşaretli (seçili) öncelik radio'sunun value'sunu oku
-    const selectedPriority = document.querySelector('input[name="priority"]:checked').value;
-
-    const newTask = createTaskElement(text, selectedPriority);
+    const newTask = createTaskElement(text, priority);
     insertTaskInOrder(newTask);
 
     // Yeni görev de seçili filtreye göre gösterilsin/gizlensin
@@ -251,14 +263,17 @@ function addTask() {
 
     updateStats();
 
-    // Textarea'yı temizle ve önceliği tekrar "Normal"a getir
+    // Textarea'yı temizle
     todoInput.value = '';
-    document.getElementById('priority-normal').checked = true;
     todoInput.focus();
 }
 
-// --- "Ekle" butonuna tıklanınca addTask fonksiyonunu çalıştır ---
-addBtn.addEventListener('click', addTask);
+// --- 3 "Ekle" butonundan birine tıklanınca, butonun data-priority'sine göre görev ekle ---
+addBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        addTask(btn.dataset.priority);
+    });
+});
 
 // --- Filtre butonlarına (Tümü/Aktif/Tamamlanan) tıklanınca ---
 filterBtns.forEach((btn) => {
