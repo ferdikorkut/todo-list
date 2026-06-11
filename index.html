@@ -22,21 +22,37 @@
             <p>Görevlerini ekle, önceliklendir ve takip et. Her şey tarayıcında saklanır, sayfayı yenilesen bile kaybolmaz.</p>
         </header>
 
-        <!-- add-task: Yeni görev eklemek için kullanılan alan -->
+        <!-- add-task: Yeni görev eklemek için kullanılan alan. 2 sütundan oluşuyor:
+             solda görev yazma kutusu (2 satır yüksekliğinde),
+             sağda üst üste 2 satır: öncelik butonları + Ekle butonu -->
         <section class="add-task">
-            <!-- Görev metninin yazılacağı kutu -->
-            <input type="text" id="todo-input" placeholder="Yeni görev ekle...">
+            <!-- Görev metninin yazılacağı kutu -> artık textarea, 2 satır yazılabiliyor.
+                 "rows" başlangıç yüksekliğini belirtir; gerçek yükseklik flex ile
+                 sağdaki 2 satırlık sütunla aynı oluyor. "resize: none" ile köşeden
+                 sürükleyip boyut değiştirme kapatıldı -->
+            <textarea id="todo-input" rows="2" placeholder="Yeni görev ekle..."></textarea>
 
-            <!-- select: Açılır liste. Kullanıcı görevin önem derecesini buradan seçecek -->
-            <!-- value: JS tarafında bu değeri okuyacağız, "selected" olan başlangıçta seçili gelir -->
-            <select id="priority-select">
-                <option value="high">Yüksek</option>
-                <option value="normal" selected>Normal</option>
-                <option value="low">Düşük</option>
-            </select>
+            <!-- add-task-right: sağ sütun, üst üste 2 satır içeriyor -->
+            <div class="add-task-right">
+                <!-- priority-options: öncelik seçimi artık radio button ile yapılıyor
+                     ama radio'lar görünmez, yanlarındaki label'lar buton gibi stillendi.
+                     "checked" olan radio'nun label'ı CSS ile renkli gösteriliyor -->
+                <div class="priority-options">
+                    <!-- Etiketlerin içine yazı yerine, görev satırlarındaki öncelik
+                         oklarıyla aynı semboller kondu: ▲ yüksek, ● normal, ▼ düşük -->
+                    <input type="radio" name="priority" id="priority-high" value="high">
+                    <label for="priority-high" class="priority-option priority-option-high">▲</label>
 
-            <!-- Görevi listeye eklemek için tıklanacak buton -->
-            <button id="add-btn">Ekle</button>
+                    <input type="radio" name="priority" id="priority-normal" value="normal" checked>
+                    <label for="priority-normal" class="priority-option priority-option-normal">●</label>
+
+                    <input type="radio" name="priority" id="priority-low" value="low">
+                    <label for="priority-low" class="priority-option priority-option-low">▼</label>
+                </div>
+
+                <!-- Görevi listeye eklemek için tıklanacak buton -->
+                <button id="add-btn">Ekle</button>
+            </div>
         </section>
 
         <!-- filters: Görevleri filtrelemek (Tümü/Aktif/Tamamlanan) ve tamamlananları silmek için bölüm -->
@@ -56,65 +72,24 @@
         <!-- Şimdilik sayılar sabit (0) yazıyor, ileride JS bu sayıları güncelleyecek -->
         <div class="stats">
             <div class="stat-box">
-                <span class="stat-number">0</span>
+                <!-- id'ler sayesinde script.js bu sayıları güncelleyebiliyor -->
+                <span class="stat-number" id="total-count">0</span>
                 <span class="stat-label">Toplam</span>
             </div>
             <div class="stat-box">
-                <span class="stat-number">0</span>
+                <span class="stat-number" id="active-count">0</span>
                 <span class="stat-label">Aktif</span>
             </div>
             <div class="stat-box">
-                <span class="stat-number">0</span>
+                <span class="stat-number" id="completed-count">0</span>
                 <span class="stat-label">Tamamlanan</span>
             </div>
         </div>
 
-        <!-- task-list: Görevlerin listeleneceği alan -->
-        <!-- Aşağıdaki 3 görev SADECE TASARIMI GÖRMEK İÇİN örnek olarak yazıldı. -->
-        <!-- Bir sonraki adımda bunları kaldırıp, görevleri JS ile dinamik olarak ekleyeceğiz. -->
-        <ul class="task-list">
-
-            <!-- Yüksek öncelikli, tamamlanmamış bir görev örneği -->
-            <li class="task-item priority-high">
-                <!-- check-btn: Tamamlandı işaretlemek için tıklanacak yuvarlak buton -->
-                <button class="check-btn"></button>
-                <span class="task-text">Önemli bir iş (yüksek öncelik)</span>
-                <div class="task-actions">
-                    <!-- ▲▼: Önceliği yukarı/aşağı taşımak için butonlar -->
-                    <button class="priority-btn">▲</button>
-                    <button class="priority-btn">▼</button>
-                    <button class="edit-btn">Düzenle</button>
-                    <button class="delete-btn">Sil</button>
-                </div>
-            </li>
-
-            <!-- Normal öncelikli, tamamlanmamış bir görev örneği -->
-            <li class="task-item priority-normal">
-                <button class="check-btn"></button>
-                <span class="task-text">Normal öncelikli görev</span>
-                <div class="task-actions">
-                    <button class="priority-btn">▲</button>
-                    <button class="priority-btn">▼</button>
-                    <button class="edit-btn">Düzenle</button>
-                    <button class="delete-btn">Sil</button>
-                </div>
-            </li>
-
-            <!-- Düşük öncelikli, TAMAMLANMIŞ bir görev örneği -->
-            <!-- "completed" class'ı sayesinde yazı üstü çizili görünecek -->
-            <li class="task-item priority-low completed">
-                <!-- "checked" class'ı sayesinde yuvarlak buton dolu/tikli görünecek -->
-                <button class="check-btn checked">✓</button>
-                <span class="task-text">Tamamlanmış düşük öncelikli görev</span>
-                <div class="task-actions">
-                    <button class="priority-btn">▲</button>
-                    <button class="priority-btn">▼</button>
-                    <button class="edit-btn">Düzenle</button>
-                    <button class="delete-btn">Sil</button>
-                </div>
-            </li>
-
-        </ul>
+        <!-- task-list: Görevlerin listeleneceği alan.
+             2. adımdan itibaren görevler buraya script.js tarafından,
+             öncelik sırasına göre (yüksek -> normal -> düşük) ekleniyor -->
+        <ul class="task-list"></ul>
 
     </div>
 

@@ -15,12 +15,13 @@ body {
     min-height: 100vh; /* vh = viewport height -> en az ekran yüksekliği kadar */
     font-family: Arial, Helvetica, sans-serif;
 
-    /* display: flex + align-items/justify-content: center
-       -> içindeki .card kutusunu hem yatayda hem dikeyde TAM ORTAYA alır */
+    /* display: flex + justify-content: center -> .card'ı yatayda ortalar.
+       align-items: flex-start -> .card'ı dikeyde ortalamak yerine üste yaslar,
+       üstteki padding (40px) ile sayfanın tepesinden boşluk bırakılır */
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 24px;
+    padding: 40px 24px 24px 24px;
 
     /* background-color: Gradientlerin kaplamadığı yerlerde görünecek ana renk */
     background-color: #f3f0ff;
@@ -39,7 +40,7 @@ body {
    =========================================== */
 .card {
     width: 100%;
-    max-width: 460px;
+    max-width: 690px;
     background-color: #ffffff;
     border-radius: 16px;
 
@@ -56,7 +57,7 @@ body {
    =========================================== */
 .card-header {
     /* Diğer bölümlerden farklı, mor tonlarında bir arka plan rengi */
-    background-color: #6c63ff;
+    background-color: rgba(77, 103, 190, 0.5);
     color: #ffffff;
     padding: 24px;
     text-align: center;
@@ -83,10 +84,11 @@ body {
     /* flex-wrap: wrap -> alan dar olduğunda elemanlar alt satıra geçebilir */
     flex-wrap: wrap;
     gap: 8px;
-    padding: 20px 24px 12px 24px;
+    padding: 35px 24px 30px 24px;
 }
 
-/* Görev yazılan input -> kalan tüm boş alanı kaplasın */
+/* Görev yazılan input -> sol sütun. Yükseklik vermiyoruz, "align-items: stretch"
+   (flex'in varsayılanı) sayesinde sağdaki 2 satırlık sütunla aynı boya geliyor */
 #todo-input {
     flex: 1;
     min-width: 120px;
@@ -94,23 +96,82 @@ body {
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 14px;
+    /* textarea varsayılan olarak farklı bir font kullanabilir, body ile aynı yap */
+    font-family: inherit;
+    /* kullanıcının köşeden sürükleyip kutuyu büyütmesini/küçültmesini engelle */
+    resize: none;
 }
 
-/* Öncelik seçim kutusu (select) */
-#priority-select {
-    padding: 10px;
+/* add-task-right: sağ sütun. "flex: 0 0 120px" -> sabit genişlik (120px),
+   büyümez/küçülmez. Böylece öncelik butonları minimum boyutta kalır,
+   Ekle butonu da daralır; kalan tüm alanı soldaki input kaplar */
+.add-task-right {
+    flex: 0 0 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* priority-options: 1. satır -> öncelik butonlarının yan yana dizildiği grup */
+.priority-options {
+    display: flex;
+    gap: 6px;
+}
+
+/* Gerçek radio input'ları gizle -> ekranda sadece yanlarındaki label'lar görünecek */
+.priority-options input[type="radio"] {
+    display: none;
+}
+
+/* Radio'ların yanındaki label'lar -> "buton" gibi görünüyor */
+.priority-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 4px;
     border: 1px solid #ddd;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 13px;
+    color: #666666;
     background-color: #ffffff;
+    cursor: pointer;
 }
 
-/* Ekle butonu */
+/* "●" sembolü diğer oklara göre küçük göründüğü için font-size'ını büyüttük */
+.priority-option-normal {
+    font-size: 18px;
+}
+
+/* "checked" olan radio'nun yanındaki label -> görev satırlarındaki öncelik
+   renkleriyle AYNI renge boyanır (kırmızı/sarı/yeşil). "+" -> bir sonraki
+   kardeş elemanı seçer (radio'dan hemen sonraki label) */
+#priority-high:checked + .priority-option-high {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+    color: #ffffff;
+}
+
+#priority-normal:checked + .priority-option-normal {
+    background-color: #f39c12;
+    border-color: #f39c12;
+    color: #ffffff;
+}
+
+#priority-low:checked + .priority-option-low {
+    background-color: #f7dc6f;
+    border-color: #f7dc6f;
+    /* sarı arka plan üzerinde beyaz yazı okunaksız olduğu için koyu renk kullanıldı */
+    color: #5c4500;
+}
+
+/* Ekle butonu -> sağ sütunun 2. satırı, tüm genişliği kaplar */
 #add-btn {
-    padding: 10px 18px;
+    flex: 1;
+    padding: 8px;
     border: none;
     border-radius: 6px;
-    background-color: #6c63ff;
+    background-color: rgba(77, 103, 190, 0.5);
     color: #ffffff;
     font-size: 14px;
     cursor: pointer;
@@ -139,27 +200,29 @@ body {
 .filter-btn {
     padding: 6px 14px;
     border: none;
-    border-radius: 20px; /* yüksek değer -> hap/oval şekil verir */
+    border-radius: 8px; /* yüksek değer -> hap/oval şekil verir */
     background-color: #f0eefc;
-    color: #6c63ff;
+    color: rgba(77, 103, 190, 0.6);
     font-size: 13px;
     cursor: pointer;
 }
 
 /* .active class'ı olan filtre butonu -> şu an seçili olan filtreyi vurgular */
 .filter-btn.active {
-    background-color: #6c63ff;
+    background-color: rgba(77, 103, 190, 0.5);
     color: #ffffff;
 }
 
-/* "Tamamlananları Sil" butonu -> dikkat çekmesi için kırmızı tonlarda, sade */
+/* "Tamamlananları Sil" butonu -> yanındaki filtre butonlarıyla aynı hap şeklinde,
+   ama "silme" işlemi olduğu için kırmızı tonlarda */
 #clear-completed-btn {
+    padding: 6px 14px;
     border: none;
-    background: none;
+    border-radius: 8px;
+    background-color: #fdecea;
     color: #e74c3c;
     font-size: 13px;
     cursor: pointer;
-    text-decoration: underline;
 }
 
 /* ===========================================
@@ -185,14 +248,14 @@ body {
 .stat-number {
     /* display: block -> span'ı kendi satırına alır, altına stat-label gelsin diye */
     display: block;
-    font-size: 20px;
+    font-size: 25px;
     font-weight: bold;
     color: #333333;
 }
 
 /* Sayının altındaki açıklama yazısı (örn: "Toplam") */
 .stat-label {
-    font-size: 11px;
+    font-size: 13px;
     color: #999999;
     text-transform: uppercase; /* yazıyı büyük harfe çevirir */
 }
@@ -212,6 +275,9 @@ body {
     align-items: center;
     gap: 10px;
     padding: 10px 12px;
+    /* min-height: görev metni 2 satıra sığacak kadar yer ayırır
+       (kısa metinlerde de satır boyu sabit kalır, hepsi aynı yükseklikte görünür) */
+    min-height: 60px;
     margin-bottom: 8px;
     border-radius: 8px;
     background-color: #fafafa;
@@ -225,10 +291,21 @@ body {
     border-left-color: #e74c3c; /* kırmızı */
 }
 .task-item.priority-normal {
-    border-left-color: #f1c40f; /* sarı/turuncu */
+    border-left-color: #f39c12; /* turuncu */
 }
 .task-item.priority-low {
+    border-left-color: #f7dc6f; /* sarı */
+}
+
+/* Tamamlanan görev -> önceliği ne olursa olsun şerit yeşile döner.
+   (Bu kural sonra geldiği için yukarıdaki öncelik renklerini geçersiz kılar) */
+.task-item.completed {
     border-left-color: #2ecc71; /* yeşil */
+}
+
+/* Seçili filtreye uymayan görevler -> tamamen gizlenir */
+.task-item.hidden {
+    display: none;
 }
 
 /* Tamamlandı işaretleme butonu (yuvarlak) */
@@ -260,6 +337,9 @@ body {
 .task-text {
     flex: 1;
     font-size: 14px;
+    /* line-height: bir satırın yüksekliği -> 14px * 1.4 = 19.6px,
+       2 satır + üst/alt 10px padding = .task-item'ın min-height'i (60px) ile uyumlu */
+    line-height: 1.4;
     color: #333333;
 }
 
@@ -267,6 +347,16 @@ body {
 .task-item.completed .task-text {
     text-decoration: line-through;
     color: #aaaaaa;
+}
+
+/* Düzenleme modunda task-text yerine görünen input kutusu */
+.edit-input {
+    flex: 1;
+    font-size: 14px;
+    font-family: inherit;
+    padding: 4px 6px;
+    border: 1px solid rgba(77, 103, 190, 0.5);
+    border-radius: 4px;
 }
 
 /* Sağdaki butonların (öncelik okları, düzenle, sil) bulunduğu grup */
@@ -282,8 +372,8 @@ body {
 .delete-btn {
     border: none;
     background-color: #eeeeee;
-    border-radius: 4px;
-    padding: 4px 8px;
+    border-radius: 8px;
+    padding: 8px 8px;
     font-size: 12px;
     cursor: pointer;
 }
@@ -291,4 +381,10 @@ body {
 /* Sil butonuna ekstra olarak kırmızımsı bir vurgu */
 .delete-btn {
     color: #e74c3c;
+}
+
+/* edit-btn yazısı "Düzenle" <-> "Kaydet" arasında değişince buton boyu
+   değişmesin diye sabit genişlik veriyoruz */
+.edit-btn {
+    width: 64px;
 }

@@ -1,7 +1,284 @@
 // ===========================================
-// 1. ADIM NOTU
+// 2. ADIM: GÖREV EKLEME + LİSTELEME
 // ===========================================
-// Bu adımda sadece görsel tasarımı (HTML + CSS) hazırladık.
-// index.html içindeki görev satırları şu an SABİT (statik) örneklerdir.
-// Bir sonraki adımdan itibaren bu dosyaya, görevleri JavaScript ile
-// dinamik olarak eklemek/silmek/işaretlemek için kod yazmaya başlayacağız.
+// Bu adımda görevleri JavaScript ile dinamik olarak listeye ekliyoruz,
+// önceliğe göre renklendirip doğru sıraya yerleştiriyoruz ve
+// istatistik kutularını güncelliyoruz.
+
+// --- Sayfadaki elemanlara referanslar ---
+// getElementById/querySelector ile HTML'deki elemanları JS değişkenlerine bağlıyoruz
+const todoInput = document.getElementById('todo-input');
+const addBtn = document.getElementById('add-btn');
+const taskList = document.querySelector('.task-list');
+
+const totalCountEl = document.getElementById('total-count');
+const activeCountEl = document.getElementById('active-count');
+const completedCountEl = document.getElementById('completed-count');
+
+const filterBtns = document.querySelectorAll('.filter-btn');
+const clearCompletedBtn = document.getElementById('clear-completed-btn');
+
+// Şu anda seçili olan filtre ('all' / 'active' / 'completed')
+let currentFilter = 'all';
+
+// Önceliklerin sıralama değeri -> küçük sayı listede daha üstte gösterilir
+const PRIORITY_ORDER = {
+    high: 0,
+    normal: 1,
+    low: 2
+};
+
+// PRIORITY_ORDER'ın tersi: sıra numarasından öncelik adını bulmak için
+// (örn: PRIORITY_LEVELS[0] = 'high')
+const PRIORITY_LEVELS = ['high', 'normal', 'low'];
+
+// --- Yeni bir görev satırı (li) oluşturan fonksiyon ---
+// index.html'deki eski örnek görevlerle AYNI yapıda bir <li> üretir
+function createTaskElement(text, priority) {
+    const li = document.createElement('li');
+    li.className = `task-item priority-${priority}`;
+    // dataset.priority -> sıralama yaparken önceliği kolayca okumak için
+    li.dataset.priority = priority;
+
+    // Tamamlandı işaretleme butonu (yuvarlak)
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'check-btn';
+
+    // check-btn'e tıklanınca görevi tamamlandı/tamamlanmadı yap
+    checkBtn.addEventListener('click', () => {
+        // classList.toggle: class varsa kaldırır, yoksa ekler
+        li.classList.toggle('completed');
+        checkBtn.classList.toggle('checked');
+
+        // Tamamlandıysa içine ✓ koy, değilse boş bırak
+        checkBtn.textContent = checkBtn.classList.contains('checked') ? '✓' : '';
+
+        // Tamamlanma durumu değiştiği için görevi listede doğru gruba taşı
+        insertTaskInOrder(li);
+
+        // Filtre uygulanmışsa, görev tamamlanma durumuna göre görünür/gizli olsun
+        applyFilter();
+
+        updateStats();
+    });
+
+    // Görev metni
+    const taskText = document.createElement('span');
+    taskText.className = 'task-text';
+    taskText.textContent = text;
+
+    // Sağdaki butonlar (öncelik okları, düzenle, sil)
+    const actions = document.createElement('div');
+    actions.className = 'task-actions';
+    actions.innerHTML = `
+        <button class="priority-btn priority-up-btn">▲</button>
+        <button class="priority-btn priority-down-btn">▼</button>
+        <button class="edit-btn">Düzenle</button>
+        <button class="delete-btn">Sil</button>
+    `;
+
+    // innerHTML ile eklenen butonlara erişmek için querySelector kullanıyoruz
+    const priorityUpBtn = actions.querySelector('.priority-up-btn');
+    const priorityDownBtn = actions.querySelector('.priority-down-btn');
+    const editBtn = actions.querySelector('.edit-btn');
+    const deleteBtn = actions.querySelector('.delete-btn');
+
+    // Görevin önceliğini değiştirip listeyi yeniden sıralayan yardımcı fonksiyon
+    function changeTaskPriority(newPriority) {
+        // Eski öncelik class'ını kaldır, yenisini ekle
+        li.classList.remove(`priority-${li.dataset.priority}`);
+        li.classList.add(`priority-${newPriority}`);
+        li.dataset.priority = newPriority;
+
+        // Listeyi yeni önceliğe göre doğru sıraya koy
+        insertTaskInOrder(li);
+    }
+
+    // "▲" butonuna tıklanınca öncelik bir seviye artar (düşük -> normal -> yüksek)
+    priorityUpBtn.addEventListener('click', () => {
+        const currentIndex = PRIORITY_ORDER[li.dataset.priority];
+
+        // Zaten en yüksek öncelikteyse bir şey yapma
+        if (currentIndex === 0) {
+            return;
+        }
+
+        changeTaskPriority(PRIORITY_LEVELS[currentIndex - 1]);
+    });
+
+    // "▼" butonuna tıklanınca öncelik bir seviye azalır (yüksek -> normal -> düşük)
+    priorityDownBtn.addEventListener('click', () => {
+        const currentIndex = PRIORITY_ORDER[li.dataset.priority];
+
+        // Zaten en düşük öncelikteyse bir şey yapma
+        if (currentIndex === PRIORITY_LEVELS.length - 1) {
+            return;
+        }
+
+        changeTaskPriority(PRIORITY_LEVELS[currentIndex + 1]);
+    });
+
+    // "Sil" butonuna tıklanınca görev satırını listeden kaldır
+    deleteBtn.addEventListener('click', () => {
+        li.remove(); // bu satırı (li) sayfadan tamamen kaldırır
+        updateStats();
+    });
+
+    // "Düzenle" butonuna tıklanınca satır içi düzenleme moduna geç/çık
+    editBtn.addEventListener('click', () => {
+        if (!li.classList.contains('editing')) {
+            // --- Düzenleme moduna geç ---
+            // task-text yerine, içinde mevcut metin olan bir input koy
+            const editInput = document.createElement('input');
+            editInput.type = 'text';
+            editInput.className = 'edit-input';
+            editInput.value = taskText.textContent;
+
+            // taskText'i sayfadan kaldırıp yerine editInput'u koy
+            taskText.replaceWith(editInput);
+            editInput.focus();
+
+            editBtn.textContent = 'Kaydet';
+            li.classList.add('editing');
+        } else {
+            // --- Kaydet: input'taki yeni metni taskText'e geri yaz ---
+            const editInput = li.querySelector('.edit-input');
+            const newText = editInput.value.trim();
+
+            // Boş bırakılırsa eski metni koru
+            if (newText !== '') {
+                taskText.textContent = newText;
+            }
+
+            // editInput'u kaldırıp yerine taskText'i geri koy
+            editInput.replaceWith(taskText);
+
+            editBtn.textContent = 'Düzenle';
+            li.classList.remove('editing');
+        }
+    });
+
+    li.appendChild(checkBtn);
+    li.appendChild(taskText);
+    li.appendChild(actions);
+
+    return li;
+}
+
+// --- Bir görevin sıralamadaki "anahtarını" hesaplayan yardımcı fonksiyon ---
+// Aktif görevler için anahtar 0/1/2 (öncelik sırası), tamamlanmış görevler için
+// 10/11/12 olur -> böylece tamamlanmış görevler HER ZAMAN aktiflerden sonra gelir,
+// kendi aralarında ise yine önceliğe göre sıralanırlar
+function getSortKey(item) {
+    const priorityOrder = PRIORITY_ORDER[item.dataset.priority];
+    const completedBonus = item.classList.contains('completed') ? 10 : 0;
+    return completedBonus + priorityOrder;
+}
+
+// --- Görevi doğru sıraya yerleştirme ---
+// Liste her zaman: önce aktif görevler (yüksek -> normal -> düşük),
+// sonra tamamlanmış görevler (yine yüksek -> normal -> düşük) şeklinde sıralı kalır
+function insertTaskInOrder(li) {
+    const newKey = getSortKey(li);
+
+    // Listedeki mevcut görev satırlarını sırayla kontrol et
+    const existingItems = taskList.querySelectorAll('.task-item');
+
+    for (const item of existingItems) {
+        const itemKey = getSortKey(item);
+
+        // Yeni görevden DAHA SONRA gelmesi gereken ilk satırı bulunca,
+        // yeni görevi onun hemen ÖNÜNE ekle
+        if (itemKey > newKey) {
+            taskList.insertBefore(li, item);
+            return;
+        }
+    }
+
+    // Buraya gelindiyse yeni görev en sona ait -> listenin en sonuna ekle
+    taskList.appendChild(li);
+}
+
+// --- Seçili filtreye göre görevleri göster/gizle ---
+function applyFilter() {
+    const items = taskList.querySelectorAll('.task-item');
+
+    items.forEach((item) => {
+        const isCompleted = item.classList.contains('completed');
+
+        // Filtreye göre bu görev gösterilmeli mi?
+        let shouldShow = true;
+        if (currentFilter === 'active') {
+            shouldShow = !isCompleted;
+        } else if (currentFilter === 'completed') {
+            shouldShow = isCompleted;
+        }
+
+        // shouldShow false ise "hidden" class'ı ekle (CSS ile gizlenir)
+        item.classList.toggle('hidden', !shouldShow);
+    });
+}
+
+// --- İstatistik kutularını (Toplam / Aktif / Tamamlanan) güncelleme ---
+function updateStats() {
+    const total = taskList.querySelectorAll('.task-item').length;
+    const completed = taskList.querySelectorAll('.task-item.completed').length;
+    const active = total - completed;
+
+    totalCountEl.textContent = total;
+    activeCountEl.textContent = active;
+    completedCountEl.textContent = completed;
+}
+
+// --- Yeni görev ekleme işlemi ---
+function addTask() {
+    // Başındaki/sonundaki boşlukları temizle
+    const text = todoInput.value.trim();
+
+    // Boş görev eklenmesin
+    if (text === '') {
+        return;
+    }
+
+    // İşaretli (seçili) öncelik radio'sunun value'sunu oku
+    const selectedPriority = document.querySelector('input[name="priority"]:checked').value;
+
+    const newTask = createTaskElement(text, selectedPriority);
+    insertTaskInOrder(newTask);
+
+    // Yeni görev de seçili filtreye göre gösterilsin/gizlensin
+    applyFilter();
+
+    updateStats();
+
+    // Textarea'yı temizle ve önceliği tekrar "Normal"a getir
+    todoInput.value = '';
+    document.getElementById('priority-normal').checked = true;
+    todoInput.focus();
+}
+
+// --- "Ekle" butonuna tıklanınca addTask fonksiyonunu çalıştır ---
+addBtn.addEventListener('click', addTask);
+
+// --- Filtre butonlarına (Tümü/Aktif/Tamamlanan) tıklanınca ---
+filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        // "active" class'ını önce tüm filtre butonlarından kaldır,
+        // sonra sadece tıklanan butona ekle
+        filterBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // data-filter özniteliğinden seçilen filtreyi oku ve uygula
+        currentFilter = btn.dataset.filter;
+        applyFilter();
+    });
+});
+
+// --- "Tamamlananları Sil" butonuna tıklanınca ---
+clearCompletedBtn.addEventListener('click', () => {
+    const completedItems = taskList.querySelectorAll('.task-item.completed');
+
+    completedItems.forEach((item) => item.remove());
+
+    updateStats();
+});
