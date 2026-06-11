@@ -8,7 +8,7 @@
 // --- Sayfadaki elemanlara referanslar ---
 // getElementById/querySelector ile HTML'deki elemanları JS değişkenlerine bağlıyoruz
 const todoInput = document.getElementById('todo-input');
-const addBtns = document.querySelectorAll('.add-btn');
+const addBtn = document.getElementById('add-btn');
 const taskList = document.querySelector('.task-list');
 
 const totalCountEl = document.getElementById('total-count');
@@ -245,8 +245,7 @@ function updateStats() {
 }
 
 // --- Yeni görev ekleme işlemi ---
-// priority: tıklanan "Ekle" butonunun data-priority değeri (high/normal/low)
-function addTask(priority) {
+function addTask() {
     // Başındaki/sonundaki boşlukları temizle
     const text = todoInput.value.trim();
 
@@ -255,7 +254,10 @@ function addTask(priority) {
         return;
     }
 
-    const newTask = createTaskElement(text, priority);
+    // İşaretli (seçili) öncelik radio'sunun value'sunu oku
+    const selectedPriority = document.querySelector('input[name="priority"]:checked').value;
+
+    const newTask = createTaskElement(text, selectedPriority);
     insertTaskInOrder(newTask);
 
     // Yeni görev de seçili filtreye göre gösterilsin/gizlensin
@@ -263,17 +265,14 @@ function addTask(priority) {
 
     updateStats();
 
-    // Textarea'yı temizle
+    // Textarea'yı temizle ve önceliği tekrar "Normal"a getir
     todoInput.value = '';
+    document.getElementById('priority-normal').checked = true;
     todoInput.focus();
 }
 
-// --- 3 "Ekle" butonundan birine tıklanınca, butonun data-priority'sine göre görev ekle ---
-addBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-        addTask(btn.dataset.priority);
-    });
-});
+// --- "Ekle" butonuna tıklanınca addTask fonksiyonunu çalıştır ---
+addBtn.addEventListener('click', addTask);
 
 // --- Filtre butonlarına (Tümü/Aktif/Tamamlanan) tıklanınca ---
 filterBtns.forEach((btn) => {

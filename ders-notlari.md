@@ -11,8 +11,8 @@ Bu dosyada projede yaptığımız çalışmaların özetini tutuyoruz.
 3. ✅ Tamamlandı işaretleme (tik + üstü çizili)
 4. ✅ Düzenleme ve silme butonları
 5. ✅ Öncelik yukarı/aşağı okları + otomatik yeniden sıralama
-6. ⬜ Filtreler (Tümü/Aktif/Tamamlanan) + Tamamlananları Sil
-7. ⬜ İstatistik kutuları
+6. ✅ Filtreler (Tümü/Aktif/Tamamlanan) + Tamamlananları Sil
+7. ✅ İstatistik kutuları
 8. ⬜ localStorage ile kalıcılık
 
 ---
@@ -143,9 +143,72 @@ Bu dosyada projede yaptığımız çalışmaların özetini tutuyoruz.
 
 ---
 
+## 6. Adım - Filtreler ve Tamamlananları Sil (11 Haziran 2026)
+
+- **script.js**:
+  - `currentFilter` değişkeni: şu an seçili filtreyi tutar (`'all'` / `'active'` / `'completed'`).
+  - `applyFilter()`: listedeki her `.task-item`'ı kontrol eder, görevin tamamlanma
+    durumu ile `currentFilter`'a göre gösterilip gösterilmeyeceğine karar verir,
+    uymuyorsa `hidden` class'ı ekler (CSS ile `display: none` yapar).
+  - Filtre butonlarına (`Tümü`/`Aktif`/`Tamamlanan`) `click` dinleyicisi eklendi:
+    tıklanan butona `active` class'ı verilir (diğerlerinden kaldırılır),
+    `data-filter` özniteliğinden okunan değer `currentFilter`'a atanır,
+    sonra `applyFilter()` çağrılır.
+  - "Tamamlananları Sil" butonuna tıklanınca tüm `.task-item.completed`
+    elemanları `remove()` ile listeden kaldırılır, `updateStats()` çağrılır.
+  - `addTask()` ve check-btn tıklamasından sonra da `applyFilter()` çağrılarak
+    yeni eklenen/durumu değişen görevler de filtreye uysun diye kontrol edilir.
+- **Öğrenilen kavramlar**: `classList.toggle(class, kosul)` -> ikinci parametre
+  `true`/`false` verilince class'ı eklemek/kaldırmak yerine doğrudan o duruma
+  ayarlar; `querySelectorAll` ile seçilen birden fazla elemanı `forEach` ile
+  tek tek `remove()` etme; CSS ile "gizleme" (`display: none`) ve JS class
+  yönetiminin birlikte çalışması.
+
+---
+
+## 7. Adım - İstatistik Kutuları (11 Haziran 2026)
+
+- Bu adımın kodu aslında 2. Adım'da yazılmıştı: `updateStats()` fonksiyonu
+  `.task-item` ve `.task-item.completed` sayılarını sayıp Toplam/Aktif/Tamamlanan
+  kutularını günceller. O zamandan beri her görev ekleme, tamamlama, silme ve
+  "Tamamlananları Sil" işleminden sonra çağrılıyor - yani bu adım fiilen
+  tamamlanmıştı, burada sadece planda işaretliyoruz.
+
+---
+
+## Görsel İyileştirmeler (11 Haziran 2026)
+
+Numaralı adımların dışında, mevcut özelliklerin görünümünde birkaç değişiklik yapıldı:
+
+- **Öncelik okları artık "akıllı"**: Her görevde ▲ (öncelik artır) ve ▼ (öncelik
+  azalt) butonları var, ama gereksiz olan gizleniyor:
+  - Yüksek öncelikte ▲ gizli (zaten daha yukarı çıkamaz).
+  - Düşük öncelikte ▼ gizli (zaten daha aşağı inemez).
+  - Görev tamamlandığında ikisi de gizleniyor (artık önceliğin önemi kalmadığı için).
+  - `PRIORITY_LEVELS = ['high', 'normal', 'low']` dizisi eklendi; `updatePriorityArrows()`
+    fonksiyonu `li.dataset.priority`'nin bu dizideki sırasına bakarak hangi okun
+    gizleneceğine karar veriyor.
+- **Düzenle/Sil butonları artık ikon**: "Sil" yerine 🗑️, "Düzenle" yerine ✎,
+  düzenleme modundayken (Kaydet) ✎ yerine 💾 gösteriliyor. `editBtn`'e `saving`
+  class'ı eklenip kaldırılarak ✎ ve 💾 durumlarının font boyutu/padding'i
+  CSS'te (`.edit-btn` ve `.edit-btn.saving`) birbirinden bağımsız ayarlanabiliyor.
+- **Görev ekleme alanı yeniden tasarlandı**: Öncelik seçimi için kullanılan
+  radio butonları (▲●▼) kaldırıldı. Artık `#todo-input` tam genişlik, altında
+  3 ayrı "+" butonu var (kırmızı/turuncu/sarı = yüksek/normal/düşük). Hangisine
+  tıklanırsa görev o öncelikle ekleniyor. Butonların arka planı beyaz, kenarlığı
+  ve "+" sembolünün rengi önceliğin rengiyle aynı.
+  - `addTask(priority)` artık önceliği parametre olarak alıyor (radio okuma kodu kalktı).
+  - 3 butona `addBtns.forEach(...)` ile tek tek `click` dinleyicisi eklendi,
+    her biri kendi `data-priority`'sini `addTask()`'e yolluyor.
+- **`.hidden` class'ı genelleştirildi**: Daha önce sadece `.task-item.hidden`
+  için tanımlıydı, artık herhangi bir elemanı gizlemek için kullanılan genel
+  bir yardımcı (utility) class.
+
+---
+
 ### Sırada ne var?
 
-6. Adım: Filtreler (Tümü/Aktif/Tamamlanan) + Tamamlananları Sil. Filtre
-butonlarına tıklanınca listede sadece ilgili görevler görünecek (örn. "Aktif"
-seçilince tamamlanmış görevler gizlenecek). "Tamamlananları Sil" butonuna
-tıklanınca tüm tamamlanmış görevler listeden kaldırılacak.
+8. Adım: localStorage ile kalıcılık. Görevler şu an sayfa yenilenince kayboluyor.
+Bu adımda her değişiklikten sonra (ekleme, silme, düzenleme, tamamlama, öncelik
+değişimi) görev listesi `localStorage`'a kaydedilecek; sayfa açıldığında da
+`localStorage`'dan okunup listeye geri yüklenecek.

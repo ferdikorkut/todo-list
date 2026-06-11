@@ -81,15 +81,17 @@ body {
    =========================================== */
 .add-task {
     display: flex;
-    /* flex-direction: column -> textarea üstte, Ekle butonları altında alt alta dursun */
-    flex-direction: column;
+    /* flex-wrap: wrap -> alan dar olduğunda elemanlar alt satıra geçebilir */
+    flex-wrap: wrap;
     gap: 8px;
     padding: 35px 24px 30px 24px;
 }
 
-/* Görev yazılan input. "align-items: stretch" (flex'in varsayılanı) sayesinde
-   .add-task'ın tüm genişliğini kaplıyor */
+/* Görev yazılan input -> sol sütun. Yükseklik vermiyoruz, "align-items: stretch"
+   (flex'in varsayılanı) sayesinde sağdaki 2 satırlık sütunla aynı boya geliyor */
 #todo-input {
+    flex: 1;
+    min-width: 120px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -100,37 +102,83 @@ body {
     resize: none;
 }
 
-/* add-task-buttons: 3 "Ekle" butonunun yan yana dizildiği grup */
-.add-task-buttons {
+/* add-task-right: sağ sütun. "flex: 0 0 120px" -> sabit genişlik (120px),
+   büyümez/küçülmez. Böylece öncelik butonları minimum boyutta kalır,
+   Ekle butonu da daralır; kalan tüm alanı soldaki input kaplar */
+.add-task-right {
+    flex: 0 0 120px;
     display: flex;
+    flex-direction: column;
     gap: 8px;
 }
 
-/* Üç butonun ortak stili -> "flex: 1" ile eşit genişlikte yan yana dururlar.
-   Renkli dolgu yerine sadece kenarlık (border) kullanılıyor */
-.add-btn {
+/* priority-options: 1. satır -> öncelik butonlarının yan yana dizildiği grup */
+.priority-options {
+    display: flex;
+    gap: 6px;
+}
+
+/* Gerçek radio input'ları gizle -> ekranda sadece yanlarındaki label'lar görünecek */
+.priority-options input[type="radio"] {
+    display: none;
+}
+
+/* Radio'ların yanındaki label'lar -> "buton" gibi görünüyor.
+   Arka plan beyaz kalıyor, sadece sembolün rengi (color) önceliği temsil ediyor */
+.priority-option {
     flex: 1;
-    padding: 8px;
-    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 4px;
+    border: 1px solid #ddd;
     border-radius: 6px;
+    font-size: 13px;
     background-color: #ffffff;
-    font-size: 30px;
     cursor: pointer;
 }
 
-/* Önceliğe göre renkler -> görev satırlarındaki öncelik renkleriyle aynı.
-   "+" sembolünün rengi (color) kenarlık rengiyle (border-color) aynı */
-.add-btn-high {
-    border-color: #e74c3c;
+/* "●" sembolü diğer oklara göre küçük göründüğü için font-size'ını büyüttük */
+.priority-option-normal {
+    font-size: 18px;
+}
+
+/* Sembol renkleri -> görev satırlarındaki öncelik renkleriyle aynı */
+.priority-option-high {
     color: #e74c3c;
 }
-.add-btn-normal {
-    border-color: #f39c12;
+.priority-option-normal {
     color: #f39c12;
 }
-.add-btn-low {
-    border-color: #f7dc6f;
+.priority-option-low {
     color: #f7dc6f;
+}
+
+/* "checked" olan radio'nun yanındaki label -> kenarlığı, sembolüyle aynı renge
+   boyanarak seçili olduğu vurgulanır. "+" -> bir sonraki kardeş elemanı seçer
+   (radio'dan hemen sonraki label) */
+#priority-high:checked + .priority-option-high {
+    border-color: #e74c3c;
+}
+
+#priority-normal:checked + .priority-option-normal {
+    border-color: #f39c12;
+}
+
+#priority-low:checked + .priority-option-low {
+    border-color: #f7dc6f;
+}
+
+/* Ekle butonu -> sağ sütunun 2. satırı, tüm genişliği kaplar */
+#add-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background-color: rgba(77, 103, 190, 0.5);
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
 }
 
 /* ===========================================
