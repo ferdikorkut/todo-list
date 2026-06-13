@@ -64,16 +64,8 @@ body {
 }
 
 .card-header h1 {
-    margin: 0 0 8px 0;
-    font-size: 24px;
-}
-
-.card-header p {
     margin: 0;
-    font-size: 13px;
-    /* opacity: 0.85 -> Yazıyı %85 görünür yapar, biraz soluk görünmesini sağlar */
-    opacity: 0.85;
-    line-height: 1.4;
+    font-size: 24px;
 }
 
 /* ===========================================
@@ -131,7 +123,9 @@ body {
     align-items: center;
     justify-content: center;
     padding: 3px 4px;
-    border: 1px solid #ddd;
+    /* border: transparent -> seçili olmayanlarda görünmez, ama kenarlık
+       kalınlığı yine de yer kaplar (seçilince boyut kaymasın) */
+    border: 1px solid transparent;
     border-radius: 6px;
     font-size: 13px;
     background-color: #ffffff;
@@ -158,15 +152,15 @@ body {
    boyanarak seçili olduğu vurgulanır. "+" -> bir sonraki kardeş elemanı seçer
    (radio'dan hemen sonraki label) */
 #priority-high:checked + .priority-option-high {
-    border-color: #e74c3c;
+    border-color: rgba(231, 76, 60, 0.5);
 }
 
 #priority-normal:checked + .priority-option-normal {
-    border-color: #f39c12;
+    border-color: rgba(243, 156, 18, 0.5);
 }
 
 #priority-low:checked + .priority-option-low {
-    border-color: #f7dc6f;
+    border-color: rgba(247, 220, 111, 0.5);
 }
 
 /* Ekle butonu -> sağ sütunun 2. satırı, tüm genişliği kaplar */
@@ -217,16 +211,22 @@ body {
     color: #ffffff;
 }
 
-/* "Tamamlananları Sil" butonu -> yanındaki filtre butonlarıyla aynı hap şeklinde,
-   ama "silme" işlemi olduğu için kırmızı tonlarda */
+/* "Tamamlananları Sil" butonu -> yanındaki filtre butonlarıyla aynı renk,
+   böylece satırla bütünleşip göze batmıyor */
 #clear-completed-btn {
     padding: 6px 14px;
     border: none;
     border-radius: 8px;
-    background-color: #fdecea;
-    color: #e74c3c;
+    background-color: #f0eefc;
+    color: rgba(77, 103, 190, 0.6);
     font-size: 13px;
     cursor: pointer;
+}
+
+/* Üzerine gelince -> "silme" işlemi olduğunu hatırlatan kırmızı tona dönsün */
+#clear-completed-btn:hover {
+    background-color: #fdecea;
+    color: #e74c3c;
 }
 
 /* ===========================================
@@ -290,21 +290,27 @@ body {
     border-left: 4px solid transparent;
 }
 
-/* Öncelik renkleri -> soldaki şeridin rengini belirler */
+/* Öncelik renkleri -> soldaki şeridin rengini belirler.
+   "background" ile de soldan (öncelik renginin hafif transparan tonu)
+   sağa (mevcut gri tona) doğru bir geçiş (linear-gradient) ekliyoruz */
 .task-item.priority-high {
     border-left-color: #e74c3c; /* kırmızı */
+    background: linear-gradient(to right, rgba(231, 76, 60, 0.15), #fafafa 60%);
 }
 .task-item.priority-normal {
     border-left-color: #f39c12; /* turuncu */
+    background: linear-gradient(to right, rgba(243, 156, 18, 0.15), #fafafa 60%);
 }
 .task-item.priority-low {
     border-left-color: #f7dc6f; /* sarı */
+    background: linear-gradient(to right, rgba(247, 220, 111, 0.15), #fafafa 60%);
 }
 
-/* Tamamlanan görev -> önceliği ne olursa olsun şerit yeşile döner.
+/* Tamamlanan görev -> önceliği ne olursa olsun şerit ve arka plan geçişi yeşile döner.
    (Bu kural sonra geldiği için yukarıdaki öncelik renklerini geçersiz kılar) */
 .task-item.completed {
     border-left-color: #2ecc71; /* yeşil */
+    background: linear-gradient(to right, rgba(46, 204, 113, 0.15), #fafafa 60%);
 }
 
 /* "hidden" class'ı eklenen herhangi bir eleman tamamen gizlenir

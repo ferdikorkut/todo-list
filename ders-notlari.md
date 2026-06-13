@@ -13,7 +13,7 @@ Bu dosyada projede yaptığımız çalışmaların özetini tutuyoruz.
 5. ✅ Öncelik yukarı/aşağı okları + otomatik yeniden sıralama
 6. ✅ Filtreler (Tümü/Aktif/Tamamlanan) + Tamamlananları Sil
 7. ✅ İstatistik kutuları
-8. ⬜ localStorage ile kalıcılık
+8. ✅ localStorage ile kalıcılık
 
 ---
 
@@ -206,9 +206,63 @@ Numaralı adımların dışında, mevcut özelliklerin görünümünde birkaç d
 
 ---
 
+## 8. Adım - localStorage ile Kalıcılık (13 Haziran 2026)
+
+- **script.js**:
+  - `STORAGE_KEY = 'todo-tasks'`: `localStorage`'da görevlerin saklandığı anahtar adı.
+  - `createTaskElement(text, priority, completed)`: üçüncü bir parametre (`completed`,
+    varsayılan `false`) eklendi. `true` ise satır oluşturulurken `li`'ye `completed`
+    class'ı, `checkBtn`'e `checked` class'ı ve `✓` metni baştan veriliyor - böylece
+    kaydedilmiş tamamlanmış görevler doğru görünümle (tik, üstü çizili, gizli oklar)
+    geri geliyor.
+  - `saveTasks()`: listedeki tüm `.task-item`'ları `{ text, priority, completed }`
+    şeklinde objelere çevirip bir diziye toplar, `JSON.stringify` ile metne çevirip
+    `localStorage.setItem(STORAGE_KEY, ...)` ile kaydeder.
+  - `loadTasks()`: sayfa açılırken `localStorage.getItem(STORAGE_KEY)` ile kayıtlı
+    diziyi okur (`JSON.parse`), her görev için `createTaskElement(...)` çağırıp
+    `insertTaskInOrder(...)` ile listeye ekler, sonunda `applyFilter()` ve
+    `updateStats()` çalıştırır. Kayıt yoksa (`null`) hiçbir şey yapmaz.
+  - `saveTasks()` artık şu işlemlerin sonunda çağrılıyor: görev ekleme (`addTask`),
+    tamamlandı işaretleme (check-btn), silme (`deleteBtn`), düzenleme kaydetme
+    (`editBtn`), öncelik değiştirme (`changeTaskPriority`) ve "Tamamlananları Sil".
+    Yani her değişiklik anında kaydediliyor.
+  - Dosyanın en altına `loadTasks();` çağrısı eklendi - sayfa ilk açıldığında
+    kayıtlı görevler geri yüklenir.
+- **Öğrenilen kavramlar**: `localStorage.setItem`/`getItem` ile tarayıcıda veri
+  saklama (sayfa yenilenince/kapanınca silinmiyor), `JSON.stringify`/`JSON.parse`
+  ile JS objesi ↔ metin dönüşümü (localStorage sadece string saklayabildiği için),
+  fonksiyon parametrelerine varsayılan değer verme (`completed = false`),
+  fonksiyon tanımlarının "hoisting"i sayesinde `saveTasks`/`loadTasks` gibi
+  fonksiyonların, dosyada daha yukarıda tanımlanan kod içinden çağrılabilmesi.
+
+---
+
+## Görsel İyileştirmeler (13 Haziran 2026)
+
+8. Adım'dan sonra, mevcut tasarımda birkaç küçük değişiklik daha yapıldı:
+
+- **Görev satırlarına renkli arka plan geçişi eklendi**: `.task-item` artık düz
+  `#fafafa` renk yerine, soldaki öncelik şeridiyle aynı renkten (hafif transparan,
+  `rgba(..., 0.15)`) başlayıp sağa doğru `#fafafa`'ya geçen bir `linear-gradient`
+  arka plana sahip. Tamamlanan görevlerde bu geçiş yeşil tonunda.
+- **Header'daki açıklama paragrafı kaldırıldı**: "Görevlerini ekle, önceliklendir..."
+  yazısı ve buna ait `.card-header p` CSS kuralı silindi, sadece başlık kaldı.
+- **Öncelik seçim butonları sadeleştirildi**:
+  - Seçili olmayan `.priority-option`'ların kenarlığı (`border: 1px solid #ddd`)
+    `transparent` yapıldı - artık görünmüyor ama yer kaplamaya devam ediyor
+    (seçilince boyut kaymıyor).
+  - Seçili olanın (`:checked`) kenarlık rengi, artık görev satırlarındaki arka plan
+    geçişiyle aynı rgba renklerini kullanıyor (fark edilsin diye opaklık `0.5`'e
+    çıkarıldı).
+- **"Tamamlananları Sil" butonu yeniden renklendirildi**: Kırmızı (`#fdecea` /
+  `#e74c3c`) yerine, yanındaki filtre butonlarıyla aynı mor/mavi ton (`#f0eefc` /
+  `rgba(77, 103, 190, 0.6)`) kullanılıyor, böylece satırla bütünleşiyor.
+  `:hover` durumunda eski kırmızı tona dönüyor - "silme" işlemi olduğu fareyle
+  üzerine gelince hatırlatılıyor.
+
+---
+
 ### Sırada ne var?
 
-8. Adım: localStorage ile kalıcılık. Görevler şu an sayfa yenilenince kayboluyor.
-Bu adımda her değişiklikten sonra (ekleme, silme, düzenleme, tamamlama, öncelik
-değişimi) görev listesi `localStorage`'a kaydedilecek; sayfa açıldığında da
-`localStorage`'dan okunup listeye geri yüklenecek.
+Proje şimdilik tamamlandı: 8 adımlık plan + görsel iyileştirmeler bitti.
+Yeni bir özellik/iyileştirme fikri olduğunda birlikte konuşup planlayacağız.

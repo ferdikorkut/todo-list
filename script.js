@@ -32,17 +32,26 @@ const PRIORITY_ORDER = {
 // önceliği bulmak için kullanılır (PRIORITY_ORDER'ın index'li hali)
 const PRIORITY_LEVELS = ['high', 'normal', 'low'];
 
+// localStorage'da görevleri saklamak için kullanılan anahtar (key)
+const STORAGE_KEY = 'todo-tasks';
+
 // --- Yeni bir görev satırı (li) oluşturan fonksiyon ---
 // index.html'deki eski örnek görevlerle AYNI yapıda bir <li> üretir
-function createTaskElement(text, priority) {
+function createTaskElement(text, priority, completed = false) {
     const li = document.createElement('li');
     li.className = `task-item priority-${priority}`;
     // dataset.priority -> sıralama yaparken önceliği kolayca okumak için
     li.dataset.priority = priority;
 
+    // localStorage'dan yüklenirken görev zaten tamamlanmış olabilir
+    if (completed) {
+        li.classList.add('completed');
+    }
+
     // Tamamlandı işaretleme butonu (yuvarlak)
     const checkBtn = document.createElement('button');
-    checkBtn.className = 'check-btn';
+    checkBtn.className = completed ? 'check-btn checked' : 'check-btn';
+    checkBtn.textContent = completed ? '✓' : '';
 
     // check-btn'e tıklanınca görevi tamamlandı/tamamlanmadı yap
     checkBtn.addEventListener('click', () => {
@@ -63,6 +72,7 @@ function createTaskElement(text, priority) {
         applyFilter();
 
         updateStats();
+        saveTasks();
     });
 
     // Görev metni
@@ -113,6 +123,8 @@ function createTaskElement(text, priority) {
 
         // Listeyi yeni önceliğe göre doğru sıraya koy
         insertTaskInOrder(li);
+
+        saveTasks();
     }
 
     // Başlangıçtaki önceliğe göre doğru okları göster/gizle
@@ -134,6 +146,7 @@ function createTaskElement(text, priority) {
     deleteBtn.addEventListener('click', () => {
         li.remove(); // bu satırı (li) sayfadan tamamen kaldırır
         updateStats();
+        saveTasks();
     });
 
     // "✎" butonuna tıklanınca satır içi düzenleme moduna geç/çık
@@ -169,6 +182,8 @@ function createTaskElement(text, priority) {
             editBtn.textContent = '✎';
             editBtn.classList.remove('saving');
             li.classList.remove('editing');
+
+            saveTasks();
         }
     });
 
@@ -244,6 +259,44 @@ function updateStats() {
     completedCountEl.textContent = completed;
 }
 
+// --- Görevleri localStorage'a kaydetme ---
+function saveTasks() {
+    const items = taskList.querySelectorAll('.task-item');
+
+    // Her görevi basit bir objeye çevirip diziye ekliyoruz
+    const tasks = [];
+    items.forEach((item) => {
+        tasks.push({
+            text: item.querySelector('.task-text').textContent,
+            priority: item.dataset.priority,
+            completed: item.classList.contains('completed')
+        });
+    });
+
+    // localStorage sadece string saklayabilir, JSON.stringify ile diziyi metne çeviriyoruz
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+// --- Sayfa açılınca localStorage'daki görevleri listeye geri yükleme ---
+function loadTasks() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    // Daha önce kayıt yoksa hiçbir şey yapma
+    if (!saved) {
+        return;
+    }
+
+    const tasks = JSON.parse(saved);
+
+    tasks.forEach((task) => {
+        const li = createTaskElement(task.text, task.priority, task.completed);
+        insertTaskInOrder(li);
+    });
+
+    applyFilter();
+    updateStats();
+}
+
 // --- Yeni görev ekleme işlemi ---
 function addTask() {
     // Başındaki/sonundaki boşlukları temizle
@@ -264,6 +317,7 @@ function addTask() {
     applyFilter();
 
     updateStats();
+    saveTasks();
 
     // Textarea'yı temizle ve önceliği tekrar "Normal"a getir
     todoInput.value = '';
@@ -295,4 +349,8 @@ clearCompletedBtn.addEventListener('click', () => {
     completedItems.forEach((item) => item.remove());
 
     updateStats();
+    saveTasks();
 });
+
+// --- Sayfa ilk açıldığında localStorage'daki görevleri yükle ---
+loadTasks();
