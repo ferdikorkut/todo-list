@@ -262,7 +262,32 @@ Numaralı adımların dışında, mevcut özelliklerin görünümünde birkaç d
 
 ---
 
+## Silme Onayı Eklendi (13 Haziran 2026)
+
+Görev silme tek tıkla anında oluyordu, yanlış tıklamalara karşı bir onay adımı eklendi:
+
+- **script.js**: `deleteBtn`'in `click` dinleyicisi artık 2 aşamalı çalışıyor.
+  - 1. tıklama: buton `confirming` class'ı alır, içeriği 🗑️'den `✓`'a değişir.
+    Aynı zamanda 3 saniyelik bir `setTimeout` başlar.
+  - 2. tıklama (3 saniye içinde, hâlâ `confirming` modundayken): `clearTimeout`
+    ile zamanlayıcı durdurulur, asıl silme işlemi (`li.remove()`, `updateStats()`,
+    `saveTasks()`) çalışır.
+  - 3 saniye içinde tekrar tıklanmazsa `setTimeout` içindeki kod çalışır, buton
+    otomatik olarak eski haline (🗑️, `confirming` class'ı kaldırılmış) döner.
+  - Her görev satırının kendi `confirmTimeoutId` değişkeni var (`createTaskElement`
+    içinde tanımlı) - böylece her görevin onay zamanlayıcısı birbirinden bağımsız.
+- **style.css**: `.delete-btn.confirming` kuralı eklendi - dolu kırmızı arka plan
+  + beyaz `✓` ile "tekrar tıkla, sil" net bir şekilde gösteriliyor. `✓` karakteri
+  🗑️ emojisinden farklı boyutta göründüğü için `font-size`/`padding` değerleri
+  ayrıca ince ayar yapıldı (kayma olmasın diye).
+- **Öğrenilen kavramlar**: `setTimeout`/`clearTimeout` ile zamanlayıcı kurma ve
+  gerektiğinde iptal etme, bir butonun "iki aşamalı" durumunu (normal/onay
+  bekliyor) `classList` üzerinden takip etme - `editBtn`'deki ✎↔💾 mantığıyla
+  aynı desen.
+
+---
+
 ### Sırada ne var?
 
-Proje şimdilik tamamlandı: 8 adımlık plan + görsel iyileştirmeler bitti.
-Yeni bir özellik/iyileştirme fikri olduğunda birlikte konuşup planlayacağız.
+Proje şimdilik tamamlandı: 8 adımlık plan + görsel iyileştirmeler + silme onayı
+bitti. Yeni bir özellik/iyileştirme fikri olduğunda birlikte konuşup planlayacağız.

@@ -402,6 +402,8 @@ body {
     font-size: 12px;
     padding-top: 6px;
     padding-bottom: 6px;
+    padding-left: 6px; /* 💾 emoji biraz sağa kaydığı için sola ekstra padding ekledik */
+    padding-right: 5px;
 }
 
 /* Öncelik artır/azalt okları (▲ / ▼) */
@@ -419,4 +421,18 @@ body {
 /* Sil butonuna ekstra olarak kırmızımsı bir vurgu */
 .delete-btn {
     color: #e74c3c;
+}
+
+/* Sil butonuna ilk tıklamada onay moduna geçer -> dolu kırmızı arka plan
+   ve beyaz "✓" ile "tekrar tıkla, sil" mesajı net bir şekilde verilir.
+   "✓" emoji olmadığı için 🗑️'den farklı boyutta görünüyor, bu yüzden
+   font-size ve üst/alt padding'i burada ayrıca ayarlanabilir yapıldı */
+.delete-btn.confirming {
+    background-color: #e74c3c;
+    color: #ffffff;
+    font-size: 16px;
+    padding-top: 6px;
+    padding-bottom: 5px;
+    padding-left: 8px; /* "✓" emoji biraz sağa kaydığı için sola ekstra padding ekledik */
+    padding-right: 7px;
 }

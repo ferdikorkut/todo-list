@@ -142,11 +142,29 @@ function createTaskElement(text, priority, completed = false) {
         changeTaskPriority(PRIORITY_LEVELS[index + 1]);
     });
 
-    // "Sil" butonuna tıklanınca görev satırını listeden kaldır
+    // Onay modunda açılan zaman sayacının id'si -> ikinci tıklamada veya
+    // süre dolduğunda eski sayacı iptal edebilmek için burada tutuluyor
+    let confirmTimeoutId = null;
+
+    // "Sil" butonuna tıklanınca önce onay ister, ikinci tıklamada gerçekten siler
     deleteBtn.addEventListener('click', () => {
-        li.remove(); // bu satırı (li) sayfadan tamamen kaldırır
-        updateStats();
-        saveTasks();
+        if (!deleteBtn.classList.contains('confirming')) {
+            // --- 1. tıklama: onay moduna geç ---
+            deleteBtn.textContent = '✓';
+            deleteBtn.classList.add('confirming');
+
+            // 3 saniye içinde tekrar tıklanmazsa buton eski haline döner
+            confirmTimeoutId = setTimeout(() => {
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.classList.remove('confirming');
+            }, 3000);
+        } else {
+            // --- 2. tıklama: onaylandı, görevi sil ---
+            clearTimeout(confirmTimeoutId);
+            li.remove(); // bu satırı (li) sayfadan tamamen kaldırır
+            updateStats();
+            saveTasks();
+        }
     });
 
     // "✎" butonuna tıklanınca satır içi düzenleme moduna geç/çık
