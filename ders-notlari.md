@@ -287,7 +287,51 @@ Görev silme tek tıkla anında oluyordu, yanlış tıklamalara karşı bir onay
 
 ---
 
+## Renk Teması Seçici Eklendi (13 Haziran 2026)
+
+Header'ın sağ üst köşesine, sayfanın renk temasını değiştiren 4 küçük yuvarlak
+buton eklendi: Açık Mavi (varsayılan), Açık Yeşil, Koyu Mavi, Koyu Turuncu.
+
+- **index.html**: `.card-header` içine, `<h1>`'den önce `.theme-switcher` adlı
+  bir `<div>` eklendi; içinde 4 `<button class="theme-btn" data-theme="...">`
+  var. `data-theme` değeri JS'in hangi temayı uygulayacağını anlaması için.
+- **style.css**:
+  - `.card-header`'a `position: relative` eklendi, böylece `.theme-switcher`
+    `position: absolute; top: 12px; right: 12px;` ile sağ üst köşeye sabitlendi.
+  - Her `.theme-btn`, kendi temasının 2 rengini birden gösteriyor: sol yarısı
+    sayfa/kart arka plan rengi (açık/koyu), sağ yarısı vurgu (accent) rengi -
+    `linear-gradient(to right, renk1 50%, renk2 50%)` ile (geçişsiz, net
+    bölünmüş daire). Bu sayede aynı vurgu rengine sahip "Açık Mavi" ve
+    "Koyu Mavi" birbirinden ayırt edilebiliyor.
+  - **Tema mantığı, CSS değişkeni (variable) KULLANMADAN**, `<body>`'e
+    eklenen `theme-light-green` / `theme-dark-blue` / `theme-dark-orange`
+    class'larına göre ilgili kuralları override eden (üzerine yazan) ek
+    kurallarla yapıldı (varsayılan "Açık Mavi" hiç class gerektirmiyor,
+    zaten mevcut renkler o temaya ait):
+    - Açık Yeşil: sadece vurgu rengi (header/Ekle/aktif filtre arka planı) yeşile döner.
+    - Koyu Mavi / Koyu Turuncu: ortak koyu sayfa/kart/yüzey/yazı renkleri
+      (`body`, `.card`, `.stat-box`, `.filter-btn`, `#todo-input`, görev
+      satırlarındaki arka plan geçişleri, vb.) ikisinde de aynı; sadece vurgu
+      rengi (mavi/turuncu) ayrı ayrı tanımlı.
+  - Seçili olan tema butonu kalın beyaz çerçeveyle (`.theme-btn.active`) vurgulanıyor.
+- **script.js**:
+  - `applyTheme(theme)`: `<body>`'deki eski tema class'larını temizler,
+    yeni `theme-X` class'ını ekler, doğru `.theme-btn`'e `active` class'ı
+    verir ve seçimi `localStorage.setItem('todo-theme', theme)` ile kaydeder.
+  - Her `.theme-btn`'e `click` dinleyicisi eklendi - tıklanınca `applyTheme(...)` çağrılır.
+  - Sayfa açılırken `localStorage.getItem('todo-theme')` okunup (yoksa
+    `'light-blue'` varsayılanı) `applyTheme(...)` ile uygulanıyor - `loadTasks()`
+    çağrısından hemen önce.
+- **Öğrenilen kavramlar**: `position: relative` + `position: absolute` ile bir
+  elemanı üst elemanının köşesine sabitleme, `linear-gradient` ile katı (geçişsiz)
+  renk sınırı oluşturma, CSS'te aynı stili birden fazla `body.tema-X` seçicisiyle
+  paylaştırma (virgülle ayırarak), tek bir `<body>` class'ı üzerinden sayfanın
+  tamamının görünümünü değiştirme.
+
+---
+
 ### Sırada ne var?
 
-Proje şimdilik tamamlandı: 8 adımlık plan + görsel iyileştirmeler + silme onayı
-bitti. Yeni bir özellik/iyileştirme fikri olduğunda birlikte konuşup planlayacağız.
+Proje şimdilik tamamlandı: 8 adımlık plan + görsel iyileştirmeler + silme onayı +
+renk teması seçici bitti. Yeni bir özellik/iyileştirme fikri olduğunda birlikte
+konuşup planlayacağız.

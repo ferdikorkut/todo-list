@@ -61,11 +61,57 @@ body {
     color: #ffffff;
     padding: 24px;
     text-align: center;
+
+    /* position: relative -> içindeki .theme-switcher'ı sağ üst köşeye
+       "position: absolute" ile konumlandırabilmek için gerekli */
+    position: relative;
 }
 
 .card-header h1 {
     margin: 0;
     font-size: 24px;
+}
+
+/* theme-switcher: sağ üstteki tema seçim butonlarının bulunduğu grup */
+.theme-switcher {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+}
+
+/* Her tema butonu küçük, renkli bir daire */
+.theme-btn {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 0;
+    cursor: pointer;
+}
+
+/* Şu an seçili olan tema -> daha kalın, tam beyaz çerçeveyle vurgulanır */
+.theme-btn.active {
+    border: 2px solid #ffffff;
+}
+
+/* Her buton, kendi temasının 2 rengini birden gösterir: sol yarı sayfa/kart
+   arka plan rengi, sağ yarı vurgu (accent) rengi. Böylece örneğin "Açık Mavi"
+   ve "Koyu Mavi" aynı vurgu rengine sahip olsa da arka plan farkından
+   (açık/koyu) birbirinden ayırt edilebiliyor. "to right ... 50% ... 50%" ->
+   geçişsiz, net bir sınırla ikiye bölünmüş daire oluşturur */
+.theme-btn[data-theme="light-blue"] {
+    background: linear-gradient(to right, #f3f0ff 50%, rgba(77, 103, 190, 0.9) 50%);
+}
+.theme-btn[data-theme="light-green"] {
+    background: linear-gradient(to right, #f3f0ff 50%, rgba(46, 204, 113, 0.9) 50%);
+}
+.theme-btn[data-theme="dark-blue"] {
+    background: linear-gradient(to right, #1e1e2e 50%, rgba(77, 103, 190, 0.9) 50%);
+}
+.theme-btn[data-theme="dark-orange"] {
+    background: linear-gradient(to right, #1e1e2e 50%, rgba(230, 126, 34, 0.9) 50%);
 }
 
 /* ===========================================
@@ -435,4 +481,150 @@ body {
     padding-bottom: 5px;
     padding-left: 8px; /* "✓" emoji biraz sağa kaydığı için sola ekstra padding ekledik */
     padding-right: 7px;
+}
+
+/* ===========================================
+   TEMA SİSTEMİ (RENK TEMALARI)
+   =========================================== */
+/* Varsayılan tema "Açık Mavi" -> ek bir class gerekmiyor, yukarıdaki tüm
+   renkler zaten bu temaya ait. Diğer 3 tema, <body>'e eklenen
+   "theme-light-green" / "theme-dark-blue" / "theme-dark-orange"
+   class'larına göre ilgili renkleri üzerine yazıyor (override ediyor). */
+
+/* --- Açık Yeşil tema: sadece vurgu rengi (header/Ekle/aktif filtre) değişiyor --- */
+body.theme-light-green .card-header,
+body.theme-light-green #add-btn,
+body.theme-light-green .filter-btn.active {
+    background-color: rgba(46, 204, 113, 0.5);
+}
+
+/* --- Koyu temaların (Koyu Mavi + Koyu Turuncu) paylaştığı ortak koyu renkler ---
+   İki koyu tema da aynı koyu sayfa/kart/yazı renklerini kullanıyor, sadece
+   vurgu rengi (header/Ekle/aktif filtre) birbirinden farklı - o yüzden bu
+   bölümdeki kurallar her iki temada da aynı, vurgu rengi en altta ayrı yazılı */
+body.theme-dark-blue,
+body.theme-dark-orange {
+    /* Açık temadaki mint/pembe gradient kaldırılıyor, düz koyu renk kalıyor */
+    background-color: #1e1e2e;
+    background-image: none;
+}
+
+body.theme-dark-blue .card,
+body.theme-dark-orange .card {
+    background-color: #2a2a3a;
+}
+
+/* Görev metni, istatistik sayıları, input/textarea ve ✎ ikonu -> açık renk yazı */
+body.theme-dark-blue .task-text,
+body.theme-dark-orange .task-text,
+body.theme-dark-blue .stat-number,
+body.theme-dark-orange .stat-number,
+body.theme-dark-blue #todo-input,
+body.theme-dark-orange #todo-input,
+body.theme-dark-blue .edit-input,
+body.theme-dark-orange .edit-input,
+body.theme-dark-blue .edit-btn,
+body.theme-dark-orange .edit-btn {
+    color: #e8e8f0;
+}
+
+/* Tamamlanan görevin üstü çizili yazısı -> koyu temada biraz daha soluk gri */
+body.theme-dark-blue .task-item.completed .task-text,
+body.theme-dark-orange .task-item.completed .task-text {
+    color: #8a8aa0;
+}
+
+/* İkincil/soluk yazılar (istatistik etiketleri, öncelik okları) */
+body.theme-dark-blue .stat-label,
+body.theme-dark-orange .stat-label,
+body.theme-dark-blue .priority-up-btn,
+body.theme-dark-orange .priority-up-btn,
+body.theme-dark-blue .priority-down-btn,
+body.theme-dark-orange .priority-down-btn {
+    color: #9a9ab0;
+}
+
+/* Açık gri arka planlı kutular/butonlar -> koyu temada koyu yüzey rengine döner */
+body.theme-dark-blue .stat-box,
+body.theme-dark-orange .stat-box,
+body.theme-dark-blue .filter-btn,
+body.theme-dark-orange .filter-btn,
+body.theme-dark-blue #clear-completed-btn,
+body.theme-dark-orange #clear-completed-btn,
+body.theme-dark-blue .edit-btn,
+body.theme-dark-orange .edit-btn,
+body.theme-dark-blue .delete-btn,
+body.theme-dark-orange .delete-btn,
+body.theme-dark-blue #todo-input,
+body.theme-dark-orange #todo-input,
+body.theme-dark-blue .priority-option,
+body.theme-dark-orange .priority-option,
+body.theme-dark-blue .edit-input,
+body.theme-dark-orange .edit-input {
+    background-color: #34344a;
+}
+
+/* Filtre butonları ve "Tamamlananları Sil" -> metin rengi de okunaklı olsun diye */
+body.theme-dark-blue .filter-btn,
+body.theme-dark-orange .filter-btn,
+body.theme-dark-blue #clear-completed-btn,
+body.theme-dark-orange #clear-completed-btn {
+    color: #c8c8e0;
+}
+
+/* "Tamamlananları Sil" üzerine gelince -> koyu temaya uygun, daha soluk kırmızı */
+body.theme-dark-blue #clear-completed-btn:hover,
+body.theme-dark-orange #clear-completed-btn:hover {
+    background-color: rgba(231, 76, 60, 0.25);
+    color: #ff8a75;
+}
+
+/* Görev yazma kutusunun kenarlığı ve placeholder yazısı */
+body.theme-dark-blue #todo-input,
+body.theme-dark-orange #todo-input {
+    border-color: #4a4a60;
+}
+
+body.theme-dark-blue #todo-input::placeholder,
+body.theme-dark-orange #todo-input::placeholder {
+    color: #7a7a90;
+}
+
+body.theme-dark-blue .edit-input,
+body.theme-dark-orange .edit-input {
+    border-color: #4a4a60;
+}
+
+/* Görev satırlarındaki renk geçişleri -> geçişin bittiği renk artık açık gri
+   (#fafafa) değil, koyu yüzey rengi (#34344a) - yoksa satırların sağ tarafı
+   açık renkte kalıp koyu temada göze batardı */
+body.theme-dark-blue .task-item.priority-high,
+body.theme-dark-orange .task-item.priority-high {
+    background: linear-gradient(to right, rgba(231, 76, 60, 0.25), #34344a 60%);
+}
+body.theme-dark-blue .task-item.priority-normal,
+body.theme-dark-orange .task-item.priority-normal {
+    background: linear-gradient(to right, rgba(243, 156, 18, 0.25), #34344a 60%);
+}
+body.theme-dark-blue .task-item.priority-low,
+body.theme-dark-orange .task-item.priority-low {
+    background: linear-gradient(to right, rgba(247, 220, 111, 0.25), #34344a 60%);
+}
+body.theme-dark-blue .task-item.completed,
+body.theme-dark-orange .task-item.completed {
+    background: linear-gradient(to right, rgba(46, 204, 113, 0.25), #34344a 60%);
+}
+
+/* --- Koyu Mavi tema: vurgu rengi mavi --- */
+body.theme-dark-blue .card-header,
+body.theme-dark-blue #add-btn,
+body.theme-dark-blue .filter-btn.active {
+    background-color: rgba(77, 103, 190, 0.6);
+}
+
+/* --- Koyu Turuncu tema: vurgu rengi turuncu --- */
+body.theme-dark-orange .card-header,
+body.theme-dark-orange #add-btn,
+body.theme-dark-orange .filter-btn.active {
+    background-color: rgba(230, 126, 34, 0.6);
 }

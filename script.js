@@ -370,5 +370,39 @@ clearCompletedBtn.addEventListener('click', () => {
     saveTasks();
 });
 
+// --- Renk teması seçimi ---
+const themeBtns = document.querySelectorAll('.theme-btn');
+const THEME_STORAGE_KEY = 'todo-theme';
+
+// Bir temayı uygulayan fonksiyon: <body>'e doğru class'ı ekler, hangi
+// butonun "seçili" göründüğünü günceller ve seçimi localStorage'a kaydeder
+function applyTheme(theme) {
+    // Önce body'deki önceki tema class'larının hepsini temizle
+    document.body.classList.remove(
+        'theme-light-blue',
+        'theme-light-green',
+        'theme-dark-blue',
+        'theme-dark-orange'
+    );
+    document.body.classList.add(`theme-${theme}`);
+
+    // Tıklanan butona "active" class'ı ekle, diğerlerinden kaldır
+    themeBtns.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+    });
+
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+}
+
+// Her tema butonuna tıklanınca o temayı uygula
+themeBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        applyTheme(btn.dataset.theme);
+    });
+});
+
+// Sayfa açılırken kayıtlı bir tema varsa onu, yoksa varsayılan "light-blue"yu uygula
+applyTheme(localStorage.getItem(THEME_STORAGE_KEY) || 'light-blue');
+
 // --- Sayfa ilk açıldığında localStorage'daki görevleri yükle ---
 loadTasks();
