@@ -328,6 +328,16 @@ buton eklendi: Açık Mavi (varsayılan), Açık Yeşil, Koyu Mavi, Koyu Turuncu
   paylaştırma (virgülle ayırarak), tek bir `<body>` class'ı üzerinden sayfanın
   tamamının görünümünü değiştirme.
 
+**İnce ayarlar (aynı gün)**:
+- Tema butonları kartın (`.card-header`) içinden çıkarılıp doğrudan `<body>`'e
+  taşındı; `position: absolute` (karta göre) yerine `position: fixed` (sayfaya/
+  viewport'a göre) kullanıldı - artık sayfa kaydırılsa bile hep ekranın aynı
+  köşesinde kalıyor.
+- Seçili butonun çerçeve rengi artık sabit beyaz değil, o temanın kendi vurgu
+  rengiyle aynı (`data-theme` değerine göre ayrı `border-color` kuralları).
+- Butonlara her yöne eşit yayılan hafif bir gölge eklendi (`box-shadow: 0 0 4px rgba(0,0,0,0.45)`
+  - x/y kayması `0` olduğu için belli bir tarafa değil, dairenin etrafına eşit dağılıyor).
+
 ---
 
 ### Sırada ne var?

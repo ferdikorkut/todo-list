@@ -17,11 +17,11 @@ body {
 
     /* display: flex + justify-content: center -> .card'ı yatayda ortalar.
        align-items: flex-start -> .card'ı dikeyde ortalamak yerine üste yaslar,
-       üstteki padding (40px) ile sayfanın tepesinden boşluk bırakılır */
+       üstteki padding (4px) ile sayfanın tepesinden boşluk bırakılır */
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 40px 24px 24px 24px;
+    padding: 45px 24px 24px 24px;
 
     /* background-color: Gradientlerin kaplamadığı yerlerde görünecek ana renk */
     background-color: #f3f0ff;
@@ -61,10 +61,6 @@ body {
     color: #ffffff;
     padding: 24px;
     text-align: center;
-
-    /* position: relative -> içindeki .theme-switcher'ı sağ üst köşeye
-       "position: absolute" ile konumlandırabilmek için gerekli */
-    position: relative;
 }
 
 .card-header h1 {
@@ -72,13 +68,16 @@ body {
     font-size: 24px;
 }
 
-/* theme-switcher: sağ üstteki tema seçim butonlarının bulunduğu grup */
+/* theme-switcher: artık kartın içinde değil, doğrudan sayfanın (viewport'un)
+   sağ üst köşesinde sabit duruyor. "position: fixed" -> sayfa kaydırılsa
+   (scroll) bile her zaman ekranın aynı köşesinde kalır */
 .theme-switcher {
-    position: absolute;
-    top: 12px;
-    right: 12px;
+    position: fixed;
+    top: 16px;
+    right: 20px;
     display: flex;
     gap: 6px;
+    z-index: 10;
 }
 
 /* Her tema butonu küçük, renkli bir daire */
@@ -89,11 +88,30 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.6);
     padding: 0;
     cursor: pointer;
+
+    /* Hafif bir gölge -> "0 0" (x/y kayması yok) sayesinde belli bir tarafa
+       değil, dairenin her yönüne eşit şekilde yayılır */
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.45);
 }
 
-/* Şu an seçili olan tema -> daha kalın, tam beyaz çerçeveyle vurgulanır */
+/* Şu an seçili olan tema -> daha kalın bir çerçeveyle vurgulanır */
 .theme-btn.active {
-    border: 2px solid #ffffff;
+    border-width: 2px;
+}
+
+/* Çerçeve rengi, butonun kendi vurgu (accent) rengiyle aynı olsun diye
+   her tema için ayrı ayrı tanımlandı - artık hep beyaz değil */
+.theme-btn.active[data-theme="light-blue"] {
+    border-color: rgb(77, 103, 190);
+}
+.theme-btn.active[data-theme="light-green"] {
+    border-color: rgb(46, 204, 113);
+}
+.theme-btn.active[data-theme="dark-blue"] {
+    border-color: rgb(77, 103, 190);
+}
+.theme-btn.active[data-theme="dark-orange"] {
+    border-color: rgb(230, 126, 34);
 }
 
 /* Her buton, kendi temasının 2 rengini birden gösterir: sol yarı sayfa/kart

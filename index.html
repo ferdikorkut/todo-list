@@ -13,20 +13,21 @@
 </head>
 <body>
 
+    <!-- theme-switcher: kartın değil, doğrudan sayfanın sağ üst köşesindeki
+         küçük renkli daireler -> her biri bir renk temasını temsil eder,
+         data-theme script.js'te hangi temanın uygulanacağını anlamak için okunuyor -->
+    <div class="theme-switcher">
+        <button class="theme-btn" data-theme="light-blue" title="Açık Mavi"></button>
+        <button class="theme-btn" data-theme="light-green" title="Açık Yeşil"></button>
+        <button class="theme-btn" data-theme="dark-blue" title="Koyu Mavi"></button>
+        <button class="theme-btn" data-theme="dark-orange" title="Koyu Turuncu"></button>
+    </div>
+
     <!-- .card: Sayfanın ortasındaki ana pencere/kutu. İçindeki her şey bunun içinde olacak -->
     <div class="card">
 
         <!-- card-header: Üst başlık bölümü, diğer bölümlerden farklı bir arka plan rengiyle ayrılacak -->
         <header class="card-header">
-            <!-- theme-switcher: sağ üstteki küçük renkli daireler -> her biri bir renk
-                 temasını temsil eder, data-theme script.js'te hangi temanın
-                 uygulanacağını anlamak için okunuyor -->
-            <div class="theme-switcher">
-                <button class="theme-btn" data-theme="light-blue" title="Açık Mavi"></button>
-                <button class="theme-btn" data-theme="light-green" title="Açık Yeşil"></button>
-                <button class="theme-btn" data-theme="dark-blue" title="Koyu Mavi"></button>
-                <button class="theme-btn" data-theme="dark-orange" title="Koyu Turuncu"></button>
-            </div>
             <h1>TODO List</h1>
         </header>
 
