@@ -91,7 +91,7 @@ body {
 
     /* Hafif bir gölge -> "0 0" (x/y kayması yok) sayesinde belli bir tarafa
        değil, dairenin her yönüne eşit şekilde yayılır */
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
 }
 
 /* Şu an seçili olan tema -> daha kalın bir çerçeveyle vurgulanır */
